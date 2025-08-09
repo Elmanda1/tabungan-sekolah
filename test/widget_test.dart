@@ -9,22 +9,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fluttertest/main.dart';
+import 'package:fluttertest/models/appconfig.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('App should show login screen', (WidgetTester tester) async {
+    // Create a test config
+    final testConfig = AppConfig(
+      menuTexts: {'test': 'Test'},
+      menuIcons: {'test': Icons.home},
+      menuActiveIcons: {'test': Icons.home_filled},
+      colorPalette: {
+        'primary': Colors.blue,
+        'background': Colors.white,
+        'accent': Colors.orange,
+        'text': Colors.black,
+      },
+    );
+    
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(MyApp(appConfig: testConfig));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that we're on the login screen
+    expect(find.text('Welcome Back!'), findsOneWidget);
+    expect(find.byType(TextFormField), findsNWidgets(2)); // Email and password fields
+    expect(find.text('SIGN IN'), findsOneWidget);
   });
 }

@@ -1,22 +1,91 @@
 import 'package:flutter/material.dart';
 
 class AppConfig extends ChangeNotifier {
-  Map<String, String> menuTexts;
-  Map<String, Color> colorPalette;
+  final Map<String, String> menuTexts;
+  final Map<String, IconData> menuIcons;
+  final Map<String, IconData> menuActiveIcons;
+  final Map<String, Color> colorPalette;
 
+  // Default constructor with required parameters
   AppConfig({
-    required this.menuTexts,
-    required this.colorPalette,
-  });
+    required Map<String, String> menuTexts,
+    required Map<String, IconData> menuIcons,
+    required Map<String, IconData> menuActiveIcons,
+    required Map<String, Color> colorPalette,
+  })  : menuTexts = Map<String, String>.from(menuTexts),
+        menuIcons = Map<String, IconData>.from(menuIcons),
+        menuActiveIcons = Map<String, IconData>.from(menuActiveIcons),
+        colorPalette = Map<String, Color>.from(colorPalette) {
+    // Ensure all required keys exist
+    _validateMaps();
+  }
+
+  // Factory constructor with default values
+  factory AppConfig.defaultConfig() {
+    return AppConfig(
+      menuTexts: {
+        'beranda': 'Beranda',
+        'riwayat': 'Riwayat',
+        'transaksi': 'Transaksi',
+        'akun': 'Akun',
+      },
+      menuIcons: {
+        'beranda': Icons.home_outlined,
+        'riwayat': Icons.history_outlined,
+        'transaksi': Icons.add_circle_outline,
+        'akun': Icons.person_outline,
+      },
+      menuActiveIcons: {
+        'beranda': Icons.home,
+        'riwayat': Icons.history,
+        'transaksi': Icons.add_circle,
+        'akun': Icons.person,
+      },
+      colorPalette: {
+        'primary': const Color(0xFF01986c),
+        'primaryLight': const Color(0xFF34D399),
+        'primaryDark': const Color(0xFF047857),
+        'background': const Color(0xFF0F172A),
+        'surface': const Color(0xFF1E293B),
+        'card': const Color(0xFF1E293B),
+        'text': Colors.white,
+        'textSecondary': const Color(0xFF94A3B8),
+        'textTertiary': const Color(0xFF64748B),
+        'success': const Color(0xFF10B981),
+        'error': const Color(0xFFEF4444),
+        'divider': const Color(0xFF334155),
+        'highlight': const Color(0x1AFFFFFF),
+      },
+    );
+  }
+
+  // Validate that all required keys exist in the maps
+  void _validateMaps() {
+    if (menuTexts.isEmpty || menuIcons.isEmpty || menuActiveIcons.isEmpty) {
+      throw ArgumentError('All maps must be non-empty');
+    }
+
+    // Ensure all menu items have corresponding icons
+    for (final key in menuTexts.keys) {
+      if (!menuIcons.containsKey(key)) {
+        throw ArgumentError('Missing icon for menu item: $key');
+      }
+      if (!menuActiveIcons.containsKey(key)) {
+        throw ArgumentError('Missing active icon for menu item: $key');
+      }
+    }
+  }
 
   // Add methods to update the config if needed
   void updateColorPalette(Map<String, Color> newPalette) {
-    colorPalette = newPalette;
+    colorPalette.clear();
+    colorPalette.addAll(Map<String, Color>.from(newPalette));
     notifyListeners();
   }
 
   void updateMenuTexts(Map<String, String> newMenuTexts) {
-    menuTexts = newMenuTexts;
+    menuTexts.clear();
+    menuTexts.addAll(Map<String, String>.from(newMenuTexts));
     notifyListeners();
   }
 }
