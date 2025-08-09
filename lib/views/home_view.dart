@@ -97,77 +97,20 @@ class _HomeViewState extends State<HomeView> {
           }
         },
       ),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Buku Keuangan',
-          style: TextStyle(
-            color: colors['text'],
-            fontWeight: FontWeight.bold,
-          ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(0), // Makes the app bar as small as possible
+        child: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications_none, color: colors['text']),
-            onPressed: () {
-              // TODO: Implement notifications
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.logout, color: colors['error']),
-            onPressed: () {
-              // Show logout confirmation dialog
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    backgroundColor: colors['surface'],
-                    title: Text(
-                      'Logout',
-                      style: TextStyle(color: colors['text']),
-                    ),
-                    content: Text(
-                      'Are you sure you want to logout?',
-                      style: TextStyle(color: colors['textSecondary']),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(color: colors['textSecondary']),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Navigate back to login screen and remove all previous routes
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/',
-                            (Route<dynamic> route) => false,
-                          );
-                        },
-                        style: TextButton.styleFrom(
-                          foregroundColor: colors['error'],
-                        ),
-                        child: const Text('LOGOUT'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            tooltip: 'Logout',
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.only(left: 25.0, right: 25.0, bottom: 25.0, top: 25.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
               Card(
                 color: colors['primary'],
                 shape: RoundedRectangleBorder(
@@ -271,13 +214,6 @@ class _HomeViewState extends State<HomeView> {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Implement add transaction
-        },
-        backgroundColor: colors['primary'],
-        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

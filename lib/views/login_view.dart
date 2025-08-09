@@ -70,32 +70,34 @@ class _LoginViewState extends State<LoginView> {
                 // Logo and Welcome Text
                 Column(
                   children: [
-                    const Icon(
-                      Icons.account_balance_wallet_rounded,
-                      size: 80,
-                      color: Colors.white,
-                    ),
                     const SizedBox(height: 16),
-                    Text(
-                      'Welcome Back!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    const Column(
+                      children: [
+                        Text(
+                          'Masuk ke',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 35,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Akun Anda',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 35,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'Please sign in to continue',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
-                    ),
                   ],
                 ),
                 
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
                 
                 // Login Form
                 Form(
@@ -105,14 +107,14 @@ class _LoginViewState extends State<LoginView> {
                       // Email Field
                       TextFormField(
                         controller: _emailController,
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: colorPalette['text']),
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          labelStyle: const TextStyle(color: Colors.white70),
-                          prefixIcon: const Icon(Icons.email, color: Colors.white70),
+                          labelStyle: TextStyle(color: colorPalette['text']?.withOpacity(0.7)),
+                          prefixIcon: Icon(Icons.email, color: colorPalette['text']?.withOpacity(0.7)),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                            borderSide: BorderSide(color: colorPalette['border'] ?? Colors.white.withOpacity(0.3)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -136,18 +138,23 @@ class _LoginViewState extends State<LoginView> {
                       // Password Field
                       TextFormField(
                         controller: _passwordController,
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: colorPalette['text']),
+                        onFieldSubmitted: (value) {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            _handleLogin();
+                          }
+                        },
                         obscureText: !_isPasswordVisible,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          labelStyle: const TextStyle(color: Colors.white70),
-                          prefixIcon: const Icon(Icons.lock, color: Colors.white70),
+                          labelStyle: TextStyle(color: colorPalette['text']?.withOpacity(0.7)),
+                          prefixIcon: Icon(Icons.lock, color: colorPalette['text']?.withOpacity(0.7)),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _isPasswordVisible 
                                   ? Icons.visibility_off 
                                   : Icons.visibility,
-                              color: Colors.white70,
+                              color: colorPalette['text']?.withOpacity(0.7),
                             ),
                             onPressed: () {
                               setState(() {
@@ -157,7 +164,7 @@ class _LoginViewState extends State<LoginView> {
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                            borderSide: BorderSide(color: colorPalette['border'] ?? Colors.white.withOpacity(0.3)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -177,20 +184,23 @@ class _LoginViewState extends State<LoginView> {
                       
                       // Forgot Password
                       Align(
-                        alignment: Alignment.centerRight,
+                        alignment: Alignment.center,
                         child: TextButton(
                           onPressed: _isLoading
                               ? null
                               : () {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Password reset functionality coming soon!'),
+                                    SnackBar(
+                                      content: Text('Password reset functionality coming soon!', style: TextStyle(color: colorPalette['text'])),
                                     ),
                                   );
                                 },
                           child: Text(
                             'Forgot Password?',
                             style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              decorationColor: colorPalette['text'],
+                              decorationThickness: 1.0,
                               color: colorPalette['text'],
                               fontWeight: FontWeight.w500,
                             ),
@@ -213,20 +223,20 @@ class _LoginViewState extends State<LoginView> {
                             ),
                           ),
                           child: _isLoading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(colorPalette['onPrimary'] ?? Colors.white),
                                   ),
                                 )
-                              : const Text(
-                                  'SIGN IN',
+                              : Text(
+                                  'LOGIN',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: colorPalette['text'],
                                   ),
                                 ),
                         ),
@@ -239,23 +249,23 @@ class _LoginViewState extends State<LoginView> {
                         children: [
                           Expanded(
                             child: Divider(
-                              color: Colors.white.withOpacity(0.3),
+                              color: colorPalette['border'] ?? Colors.white,
                               thickness: 1,
                             ),
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             child: Text(
-                              'OR',
+                              'atau',
                               style: TextStyle(
-                                color: Colors.white70,
+                                color: colorPalette['text'],
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
                           Expanded(
                             child: Divider(
-                              color: Colors.white.withOpacity(0.3),
+                              color: colorPalette['border'] ?? Colors.white,
                               thickness: 1,
                             ),
                           ),
@@ -274,8 +284,8 @@ class _LoginViewState extends State<LoginView> {
                                 ? null
                                 : () {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Google sign in coming soon!'),
+                                      SnackBar(
+                                        content: Text('Google sign in coming soon!', style: TextStyle(color: colorPalette['text'])),
                                       ),
                                     );
                                   },
@@ -288,7 +298,7 @@ class _LoginViewState extends State<LoginView> {
                               child: const Icon(
                                 Icons.g_mobiledata,
                                 size: 32,
-                                color: Color(0xFFDB4437), // Google red
+                                color: Colors.red, 
                               ),
                             ),
                           ),
@@ -301,8 +311,8 @@ class _LoginViewState extends State<LoginView> {
                                 ? null
                                 : () {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Facebook sign in coming soon!'),
+                                      SnackBar(
+                                        content: Text('Facebook sign in coming soon!', style: TextStyle(color: colorPalette['text'])),
                                       ),
                                     );
                                   },
@@ -312,10 +322,10 @@ class _LoginViewState extends State<LoginView> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.facebook,
                                 size: 24,
-                                color: Color(0xFF4267B2), // Facebook blue
+                                color: Colors.blue[800],
                               ),
                             ),
                           ),
@@ -328,24 +338,24 @@ class _LoginViewState extends State<LoginView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            'Don\'t have an account? ',
-                            style: TextStyle(color: Colors.white70),
+                          Text(
+                            'Belum Punya Akun? ',
+                            style: TextStyle(color: colorPalette['text']),
                           ),
                           TextButton(
                             onPressed: _isLoading
                                 ? null
                                 : () {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Sign up functionality coming soon!'),
+                                      SnackBar(
+                                        content: Text('Sign up functionality coming soon!', style: TextStyle(color: colorPalette['text'])),
                                       ),
                                     );
                                   },
                             child: Text(
-                              'Sign Up',
+                              'Daftar',
                               style: TextStyle(
-                                color: colorPalette['accent'],
+                                color: colorPalette['primary'], 
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

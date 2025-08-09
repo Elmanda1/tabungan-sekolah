@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,63 +16,41 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Default values in case of errors
-    Map<String, String> menuTexts = {};
-    Map<String, IconData> menuIcons = {};
-    Map<String, IconData> menuActiveIcons = {};
-    Map<String, Color> colors = {
-      'primary': Colors.blue,
-      'background': Colors.white,
-      'surface': Colors.white,
-      'text': Colors.black,
-      'textSecondary': Colors.grey,
-      'success': Colors.green,
-      'error': Colors.red,
-    };
-
-    try {
-      // Try to get AppConfig from provider
-      final appConfig = Provider.of<AppConfig>(context, listen: true);
-      
-      // Safely copy the maps with fallbacks
-      menuTexts = Map<String, String>.from(appConfig.menuTexts);
-      menuIcons = Map<String, IconData>.from(appConfig.menuIcons);
-      menuActiveIcons = Map<String, IconData>.from(appConfig.menuActiveIcons);
-      colors = Map<String, Color>.from(appConfig.colorPalette);
-    } catch (e) {
-      // If there's an error, use default values
-      debugPrint('Error accessing AppConfig: $e');
-      menuTexts = {
-        'beranda': 'Beranda',
-        'riwayat': 'Riwayat',
-        'transaksi': 'Transaksi',
-        'akun': 'Akun',
-      };
-      
-      menuIcons = {
-        'beranda': Icons.home_outlined,
-        'riwayat': Icons.history_outlined,
-        'transaksi': Icons.add_circle_outline,
-        'akun': Icons.person_outline,
-      };
-      
-      menuActiveIcons = {
-        'beranda': Icons.home,
-        'riwayat': Icons.history,
-        'transaksi': Icons.add_circle,
-        'akun': Icons.person,
-      };
-    }
-
+    // Get AppConfig from provider
+    final appConfig = Provider.of<AppConfig>(context, listen: true);
+    
+    // Use the color palette from the app config
+    final colors = appConfig.colorPalette;
+    
+    // Get menu configurations with fallbacks
+    final menuTexts = Map<String, String>.from(appConfig.menuTexts);
+    final menuIcons = Map<String, IconData>.from(appConfig.menuIcons);
+    final menuActiveIcons = Map<String, IconData>.from(appConfig.menuActiveIcons);
+    
     // Ensure we have at least the default menu items
     if (menuTexts.isEmpty) {
-      menuTexts = {
+      menuTexts.addAll({
         'beranda': 'Beranda',
         'riwayat': 'Riwayat',
         'transaksi': 'Transaksi',
         'akun': 'Akun',
-      };
+      });
     }
+    
+    // Always use filled icons for both active and inactive states
+    menuIcons.addAll({
+      'beranda': Icons.home,
+      'riwayat': Icons.history,
+      'transaksi': Icons.add_circle,
+      'akun': Icons.person,
+    });
+    
+    menuActiveIcons.addAll({
+      'beranda': Icons.home,
+      'riwayat': Icons.history,
+      'transaksi': Icons.add_circle,
+      'akun': Icons.person,
+    });
 
     // Map routes to menu keys
     final routeToKey = {
@@ -92,11 +71,12 @@ class BottomNavBar extends StatelessWidget {
           : menuIcons[key] ?? _getDefaultIcon(key, filled: false);
       
       return BottomNavigationBarItem(
-        icon: Icon(
-          icon,
-          color: isActive 
-              ? colors['primary'] ?? Colors.blue
-              : colors['textSecondary'] ?? Colors.grey,
+        icon: _AnimatedNavIcon(
+          icon: icon,
+          isActive: isActive,
+          activeColor: Colors.white,
+          inactiveColor: Colors.white.withOpacity(0.7),
+          backgroundColor: colors['primary'] ?? Colors.green,
         ),
         label: entry.value,
       );
@@ -107,7 +87,6 @@ class BottomNavBar extends StatelessWidget {
     
     return Container(
       decoration: BoxDecoration(
-        color: colors['surface'] ?? Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -116,45 +95,56 @@ class BottomNavBar extends StatelessWidget {
           ),
         ],
       ),
-      child: BottomNavigationBar(
-        items: items,
-        currentIndex: items.indexWhere((item) {
-          final itemIndex = items.indexOf(item);
-          if (itemIndex < 0 || itemIndex >= menuItemsList.length) return false;
-          final menuKey = menuItemsList[itemIndex].key;
-          return routeToKey[currentRoute] == menuKey;
-        }).clamp(0, items.length - 1),
-        onTap: (index) {
-          if (index >= 0 && index < menuItemsList.length) {
-            final menuKey = menuItemsList[index].key;
-            final route = routeToKey.entries
-                .firstWhere(
-                  (entry) => entry.value == menuKey,
-                  orElse: () => routeToKey.entries.first,
-                )
-                .key;
-            onItemTapped(route);
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: colors['surface'] ?? Colors.white,
-        selectedItemColor: colors['primary'] ?? Colors.blue,
-        unselectedItemColor: colors['textSecondary'] ?? Colors.grey,
-        selectedLabelStyle: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: colors['primary'] ?? Colors.blue,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
-        unselectedLabelStyle: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.normal,
-          color: colors['textSecondary'] ?? Colors.grey,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+          child: BottomNavigationBar(
+            items: items,
+            currentIndex: items.indexWhere((item) {
+              final itemIndex = items.indexOf(item);
+              if (itemIndex < 0 || itemIndex >= menuItemsList.length) return false;
+              final menuKey = menuItemsList[itemIndex].key;
+              return routeToKey[currentRoute] == menuKey;
+            }).clamp(0, items.length - 1),
+            onTap: (index) {
+              if (index >= 0 && index < menuItemsList.length) {
+                final menuKey = menuItemsList[index].key;
+                final route = routeToKey.entries
+                    .firstWhere(
+                      (entry) => entry.value == menuKey,
+                      orElse: () => routeToKey.entries.first,
+                    )
+                    .key;
+                onItemTapped(route);
+              }
+            },
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.transparent,
+            selectedItemColor: colors['text'],
+            unselectedItemColor: colors['textSecondary'],
+            selectedLabelStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: colors['text'],
+              height: 2.0,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.normal,
+              color: colors['textSecondary'],
+              height: 2.0,
+            ),
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            elevation: 0,
+          ),
         ),
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        elevation: 8,
       ),
     );
   }
@@ -173,5 +163,113 @@ class BottomNavBar extends StatelessWidget {
       default:
         return filled ? Icons.circle : Icons.circle_outlined;
     }
+  }
+}
+
+class _AnimatedNavIcon extends StatefulWidget {
+  final IconData icon;
+  final bool isActive;
+  final Color activeColor;
+  final Color inactiveColor;
+  final Color backgroundColor;
+
+  const _AnimatedNavIcon({
+    required this.icon,
+    required this.isActive,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.backgroundColor,
+  });
+
+  @override
+  _AnimatedNavIconState createState() => _AnimatedNavIconState();
+}
+
+class _AnimatedNavIconState extends State<_AnimatedNavIcon> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<Color?> _colorAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.2,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    _colorAnimation = ColorTween(
+      begin: Colors.transparent,
+      end: widget.backgroundColor.withOpacity(0.3),
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    if (widget.isActive) {
+      _animationController.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedNavIcon oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive != oldWidget.isActive) {
+      if (widget.isActive) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Background circle with animation
+          AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _colorAnimation.value,
+                ),
+              );
+            },
+          ),
+          // Icon with scale animation
+          ScaleTransition(
+            scale: _scaleAnimation,
+            child: Icon(
+              widget.icon,
+              color: widget.isActive ? widget.activeColor : widget.inactiveColor,
+              size: 24,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
