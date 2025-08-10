@@ -19,36 +19,26 @@ class _RiwayatViewState extends State<RiwayatView> {
       'title': 'Grocery Shopping',
       'amount': -125.75,
       'date': DateTime.now().subtract(const Duration(hours: 2)),
-      'category': 'Shopping',
-      'icon': Icons.shopping_bag,
     },
     {
       'title': 'Salary',
       'amount': 5000.00,
       'date': DateTime.now().subtract(const Duration(days: 1)),
-      'category': 'Income',
-      'icon': Icons.account_balance_wallet,
     },
     {
       'title': 'Dinner',
       'amount': -45.50,
       'date': DateTime.now().subtract(const Duration(days: 1, hours: 4)),
-      'category': 'Food',
-      'icon': Icons.restaurant,
     },
     {
       'title': 'Freelance Work',
       'amount': 350.00,
       'date': DateTime.now().subtract(const Duration(days: 2)),
-      'category': 'Income',
-      'icon': Icons.work,
     },
     {
       'title': 'Electric Bill',
       'amount': -120.00,
       'date': DateTime.now().subtract(const Duration(days: 3)),
-      'category': 'Bills',
-      'icon': Icons.bolt,
     },
   ];
 
@@ -83,26 +73,134 @@ class _RiwayatViewState extends State<RiwayatView> {
           }
         },
       ),
-      appBar: AppBar(
-        backgroundColor: colors['background'],
-        elevation: 0,
-        title: Text(
-          'Transaction History',
-          style: TextStyle(
-            color: colors['text'],
-            fontWeight: FontWeight.bold,
+      body: Column(
+        children: [
+          // Income and Expenses Cards
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 45.0, 16.0, 16.0),
+            child: Row(
+              children: [
+                // Income Card
+                Expanded(
+                  child: Card(
+                    color: colors['card'],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: colors['success']!, width: 0.7),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: colors['success']!.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Icon(Icons.trending_up, color: colors['success'], size: 24),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pemasukan',
+                                style: TextStyle(
+                                  color: colors['textSecondary'],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                formatter.format(_transactions.where((t) => t['amount'] > 0).fold(0.0, (sum, t) => sum + (t['amount'] as num).toDouble())),
+                                style: TextStyle(
+                                  color: colors['text'],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Expenses Card
+                Expanded(
+                  child: Card(
+                    color: colors['card'],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: colors['error']!, width: 0.7),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: colors['error']!.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Icon(Icons.trending_down, color: colors['error'], size: 24),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pengeluaran',
+                                style: TextStyle(
+                                  color: colors['textSecondary'],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                formatter.format(_transactions.where((t) => t['amount'] < 0).fold(0.0, (sum, t) => sum + (t['amount'] as num).toDouble()).abs()),
+                                style: TextStyle(
+                                  color: colors['text'],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.filter_list, color: colors['text']),
-            onPressed: () {
-              // TODO: Implement filter
-            },
+          // Transaction List Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(35, 8, 5, 0),
+            child: Row(
+              children: [
+                Icon(Icons.receipt_long_outlined, color: colors['primary'], size: 25),
+                const SizedBox(width: 8),
+                Text(
+                  'Transaksi',
+                  style: TextStyle(
+                    color: colors['text'],
+                    fontSize: 22,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Transaction List
+          Expanded(
+            child: _buildTransactionList(groupedTransactions, colors, formatter),
           ),
         ],
       ),
-      body: _buildTransactionList(groupedTransactions, colors, formatter),
     );
   }
 
@@ -124,7 +222,7 @@ class _RiwayatViewState extends State<RiwayatView> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(25),
       itemCount: groupedTransactions.length,
       itemBuilder: (context, index) {
         final date = groupedTransactions.keys.elementAt(index);
@@ -159,62 +257,53 @@ class _RiwayatViewState extends State<RiwayatView> {
   ) {
     final isExpense = transaction['amount'] < 0;
     final amount = transaction['amount'];
-    final category = transaction['category'] as String;
     
     return Card(
       color: colors['card'],
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(11),
+        side: BorderSide(color: colors['outline']!, width: 0.7),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        dense: true,
         leading: Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: colors['primary']!.withOpacity(0.1),
+            color: isExpense 
+                ? (colors['error'] ?? Colors.red).withOpacity(0.1)
+                : (colors['success'] ?? Colors.green).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
-            transaction['icon'],
-            color: colors['primary'],
+            isExpense ? Icons.trending_down : Icons.trending_up,
+            color: isExpense ? colors['error'] : colors['success'],
+            size: 20,
           ),
         ),
         title: Text(
           transaction['title'],
           style: TextStyle(
             color: colors['text'],
+            fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
         ),
         subtitle: Text(
-          category,
+          DateFormat('h:mm a').format(transaction['date']),
           style: TextStyle(
-            color: colors['textSecondary'],
-            fontSize: 12,
+            color: colors['textTertiary'],
+            fontSize: 11,
           ),
         ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              formatter.format(amount.abs()),
-              style: TextStyle(
-                color: isExpense ? colors['error'] : colors['success'],
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              DateFormat('h:mm a').format(transaction['date']),
-              style: TextStyle(
-                color: colors['textTertiary'],
-                fontSize: 12,
-              ),
-            ),
-          ],
+        trailing: Text(
+          formatter.format(amount).replaceAll('-', ''),
+          style: TextStyle(
+            color: isExpense ? colors['error'] : colors['success'],
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
         ),
         onTap: () {
           // TODO: Show transaction details
