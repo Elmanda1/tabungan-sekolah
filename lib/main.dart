@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/appconfig.dart';
+import 'providers/appconfigprovider.dart';
 import 'views/home_view.dart';
 import 'views/login_view.dart';
 import 'views/riwayat_view.dart';
@@ -8,11 +9,8 @@ import 'views/transaksi_view.dart';
 import 'views/akun_view.dart';
 
 void main() {
-  // Create app config with default values
-  final appConfig = AppConfig.defaultConfig();
-  
-  // Run the app with the configured AppConfig
-  runApp(MyApp(appConfig: appConfig));
+  // Use the pre-configured dummyAppConfig
+  runApp(MyApp(appConfig: dummyAppConfig));
 }
 
 class MyApp extends StatelessWidget {

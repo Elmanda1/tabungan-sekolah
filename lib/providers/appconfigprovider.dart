@@ -44,4 +44,21 @@ final dummyAppConfig = AppConfig(
     'divider': const Color(0xFF334155),     // For dividers and borders
     'highlight': const Color(0x1AFFFFFF),   // For selection/highlight
   },
+  featureFlags: <String, bool>{
+    // Navigation items
+    'feature.beranda.enabled': true,
+    'feature.riwayat.enabled': false,
+    'feature.transaksi.enabled': false,
+    'feature.akun.enabled': true,
+    
+    // App features
+    'feature.dark_mode': true,
+    'feature.notifications': true,
+    'feature.biometric_auth': false,
+    'feature.offline_mode': true,
+    
+    // Experimental features
+    'feature.experimental_ui': false,
+    'feature.analytics': true,
+  },
 );

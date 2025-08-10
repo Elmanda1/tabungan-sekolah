@@ -20,7 +20,15 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('=== Building BottomNavBar ===');
     final appConfig = Provider.of<AppConfig>(context, listen: true);
+    
+    // Debug print all feature flags
+    print('All feature flags:');
+    appConfig.featureFlags.forEach((key, value) {
+      print('- $key: $value');
+    });
+    
     final config = NavBarConfig.fromAppConfig({
       'menuTexts': appConfig.menuTexts,
       'menuIcons': appConfig.menuIcons,
@@ -31,9 +39,31 @@ class BottomNavBar extends StatelessWidget {
     // Merge with default values
     final menuTexts = _getMergedMenuTexts(config.menuTexts);
     final colors = config.colors;
+    
+    print('All menu items: ${menuTexts.keys.toList()}');
+
+    // Get only enabled menu items
+    final enabledItems = menuTexts.entries.where((entry) {
+      final featureFlag = 'feature.${entry.key}.enabled';
+      final isEnabled = appConfig.isFeatureEnabled(featureFlag);
+      print('Nav Item: ${entry.key}, Enabled: $isEnabled, Flag: $featureFlag');
+      return isEnabled;
+    }).toList();
+
+    print('Total enabled items: ${enabledItems.length}');
+    print('Enabled items: ${enabledItems.map((e) => e.key).toList()}');
+
+    // Don't show navigation bar if there are less than 2 items
+    if (enabledItems.length < 2) {
+      print('Hiding navigation bar - only ${enabledItems.length} items enabled (need at least 2)');
+      print('Enabled items: ${enabledItems.map((e) => e.key).toList()}');
+      return const SizedBox.shrink();
+    }
 
     // Create navigation items
-    final items = _buildNavItems(menuTexts, colors);
+    print('Building navigation bar with ${enabledItems.length} items');
+    final items = _buildNavItems(enabledItems, colors);
+    print('Navigation items built successfully');
     
     return Container(
       decoration: BoxDecoration(
@@ -48,8 +78,8 @@ class BottomNavBar extends StatelessWidget {
       child: BlurContainer(
         child: BottomNavigationBar(
           items: items,
-          currentIndex: _getCurrentIndex(menuTexts),
-          onTap: (index) => _onItemTapped(index, menuTexts),
+          currentIndex: _getCurrentIndex(menuTexts, enabledItems),
+          onTap: (index) => _onItemTapped(index, enabledItems, menuTexts),
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.transparent,
           selectedItemColor: colors['text'],
@@ -73,10 +103,10 @@ class BottomNavBar extends StatelessWidget {
   }
 
   List<BottomNavigationBarItem> _buildNavItems(
-    Map<String, String> menuTexts,
+    List<MapEntry<String, String>> enabledItems,
     Map<String, Color> colors,
   ) {
-    return menuTexts.entries.map((entry) {
+    return enabledItems.map((entry) {
       final key = entry.key;
       final isActive = NavBarUtils.getMenuKeyForRoute(currentRoute) == key;
       
@@ -91,23 +121,39 @@ class BottomNavBar extends StatelessWidget {
     }).toList();
   }
 
-  int _getCurrentIndex(Map<String, String> menuTexts) {
+  int _getCurrentIndex(
+    Map<String, String> allMenuTexts,
+    List<MapEntry<String, String>> enabledItems,
+  ) {
     final currentKey = NavConstants.routeToKey[currentRoute];
-    final index = menuTexts.entries.toList().indexWhere(
-          (entry) => entry.key == currentKey,
-        );
-    return index.clamp(0, menuTexts.length - 1);
+    
+    // If no items are enabled, return 0 as a fallback
+    if (enabledItems.isEmpty) return 0;
+    
+    // Find the index in the filtered list
+    final index = enabledItems.indexWhere(
+      (entry) => entry.key == currentKey,
+    );
+    
+    // If current route is not in enabled items, default to first enabled item
+    return index >= 0 ? index : 0;
   }
 
-  void _onItemTapped(int index, Map<String, String> menuTexts) {
-    final menuKey = menuTexts.keys.elementAt(index);
-    final route = NavConstants.routeToKey.entries
-        .firstWhere(
-          (entry) => entry.value == menuKey,
-          orElse: () => NavConstants.routeToKey.entries.first,
-        )
-        .key;
-    onItemTapped(route);
+  void _onItemTapped(
+    int index,
+    List<MapEntry<String, String>> enabledItems,
+    Map<String, String> allMenuTexts,
+  ) {
+    if (index >= 0 && index < enabledItems.length) {
+      final menuKey = enabledItems[index].key;
+      final route = NavConstants.routeToKey.entries
+          .firstWhere(
+            (entry) => entry.value == menuKey,
+            orElse: () => NavConstants.routeToKey.entries.first,
+          )
+          .key;
+      onItemTapped(route);
+    }
   }
 
   TextStyle _getLabelStyle(Color? color, bool isSelected) {

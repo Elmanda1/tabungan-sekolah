@@ -5,6 +5,7 @@ class AppConfig extends ChangeNotifier {
   final Map<String, IconData> menuIcons;
   final Map<String, IconData> menuActiveIcons;
   final Map<String, Color> colorPalette;
+  final Map<String, bool> featureFlags;
 
   // Default constructor with required parameters
   AppConfig({
@@ -12,12 +13,23 @@ class AppConfig extends ChangeNotifier {
     required Map<String, IconData> menuIcons,
     required Map<String, IconData> menuActiveIcons,
     required Map<String, Color> colorPalette,
+    Map<String, bool>? featureFlags,
   })  : menuTexts = Map<String, String>.from(menuTexts),
         menuIcons = Map<String, IconData>.from(menuIcons),
         menuActiveIcons = Map<String, IconData>.from(menuActiveIcons),
-        colorPalette = Map<String, Color>.from(colorPalette) {
+        colorPalette = Map<String, Color>.from(colorPalette),
+        featureFlags = Map<String, bool>.from(featureFlags ?? {}) {
     // Ensure all required keys exist
     _validateMaps();
+  }
+
+  // Check if a feature is enabled
+  bool isFeatureEnabled(String feature) => featureFlags[feature] ?? false;
+
+  // Enable/disable a feature
+  void setFeature(String feature, bool enabled) {
+    featureFlags[feature] = enabled;
+    notifyListeners();
   }
 
   // Factory constructor with default values

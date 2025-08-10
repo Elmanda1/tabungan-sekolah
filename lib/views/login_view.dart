@@ -16,6 +16,30 @@ class _LoginViewState extends State<LoginView> {
   bool _isLoading = false;
   bool _isPasswordVisible = false;
 
+  // Get the first enabled feature route
+  String _getFirstEnabledRoute() {
+    final appConfig = dummyAppConfig;
+    
+    // Define the order of checking routes
+    final routesInOrder = [
+      {'key': 'beranda', 'route': '/home'},
+      {'key': 'riwayat', 'route': '/riwayat'},
+      {'key': 'transaksi', 'route': '/transaksi'},
+      {'key': 'akun', 'route': '/akun'},
+    ];
+    
+    // Find the first enabled route
+    for (var item in routesInOrder) {
+      final featureFlag = 'feature.${item['key']}.enabled';
+      if (appConfig.isFeatureEnabled(featureFlag)) {
+        return item['route']!;
+      }
+    }
+    
+    // Fallback to home if no route is enabled (shouldn't happen)
+    return '/home';
+  }
+
   // Form validation and submission
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
@@ -33,7 +57,8 @@ class _LoginViewState extends State<LoginView> {
       
       if (AuthService.validateCredentials(email, password)) {
         if (!mounted) return;
-        Navigator.of(context).pushReplacementNamed('/home');
+        final firstEnabledRoute = _getFirstEnabledRoute();
+        Navigator.of(context).pushReplacementNamed(firstEnabledRoute);
       } else {
         if (!mounted) return;
         final colors = dummyAppConfig.colorPalette;
