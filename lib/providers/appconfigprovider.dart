@@ -28,8 +28,8 @@ final dummyAppConfig = AppConfig(
     
     // Background colors
     'background': const Color(0xFF0F172A),   // Dark background
-    'surface': const Color(0xFF1E293B),      // Slightly lighter surface color
-    'card': const Color(0xFF1E293B),         // Card background
+    'surface': const Color(0xFF27354c),      // Slightly lighter surface color
+    'card': const Color(0xFF1b273c),         // Card background
     
     // Text colors
     'text': Colors.white,                   // Primary text
@@ -43,6 +43,7 @@ final dummyAppConfig = AppConfig(
     // Additional UI colors
     'divider': const Color(0xFF334155),     // For dividers and borders
     'highlight': const Color(0x1AFFFFFF),   // For selection/highlight
+    'outline': const Color(0xFF535e70),     // For outlines
   },
   featureFlags: <String, bool>{
     // Navigation items

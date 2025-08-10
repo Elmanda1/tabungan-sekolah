@@ -122,7 +122,38 @@ class _LoginViewState extends State<LoginView> {
                   ],
                 ),
                 
-                const SizedBox(height: 30),
+                const SizedBox(height: 0),
+                
+                // Sign Up Link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Belum Punya Akun? ',
+                      style: TextStyle(color: colorPalette['text']),
+                    ),
+                    TextButton(
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Sign up functionality coming soon!', style: TextStyle(color: colorPalette['text'])),
+                                ),
+                              );
+                            },
+                      child: Text(
+                        'Daftar',
+                        style: TextStyle(
+                          color: colorPalette['primary'], 
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 20),
                 
                 // Login Form
                 Form(
@@ -256,13 +287,20 @@ class _LoginViewState extends State<LoginView> {
                                     valueColor: AlwaysStoppedAnimation<Color>(colorPalette['onPrimary'] ?? Colors.white),
                                   ),
                                 )
-                              : Text(
-                                  'LOGIN',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: colorPalette['text'],
-                                  ),
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.login, size: 20, color: colorPalette['text']),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'LOGIN',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: colorPalette['text'],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                         ),
                       ),
@@ -358,35 +396,6 @@ class _LoginViewState extends State<LoginView> {
                       ),
                       
                       const SizedBox(height: 24),
-                      
-                      // Sign Up Link
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Belum Punya Akun? ',
-                            style: TextStyle(color: colorPalette['text']),
-                          ),
-                          TextButton(
-                            onPressed: _isLoading
-                                ? null
-                                : () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Sign up functionality coming soon!', style: TextStyle(color: colorPalette['text'])),
-                                      ),
-                                    );
-                                  },
-                            child: Text(
-                              'Daftar',
-                              style: TextStyle(
-                                color: colorPalette['primary'], 
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
