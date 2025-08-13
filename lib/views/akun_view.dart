@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/appconfig.dart';
-import '../components/nav_bar.dart';
+import '../maintemplates.dart';
 
 class AkunView extends StatefulWidget {
   const AkunView({super.key});
@@ -12,24 +12,17 @@ class AkunView extends StatefulWidget {
 
 class _AkunViewState extends State<AkunView> {
   final _emailController = TextEditingController(text: 'john.doe@example.com');
-  final _passwordController = TextEditingController(text: '********');
+  final _passwordController = TextEditingController(text: 'rapip');
   bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.watch<AppConfig>().colorPalette;
 
-    return Scaffold(
+    return MainTemplate(
       backgroundColor: colors['background'],
-      bottomNavigationBar: BottomNavBar(
-        currentRoute: '/akun',
-        onItemTapped: (route) {
-          if (route != '/akun') {
-            Navigator.pushReplacementNamed(context, route);
-          }
-        },
-      ),
-      body: Column(
+      body: SingleChildScrollView(
+        child: Column(
         children: [
           // Profile Card
           Container(
@@ -52,7 +45,7 @@ class _AkunViewState extends State<AkunView> {
                   child: Icon(
                     Icons.person_outline,
                     size: 32,
-                    color: colors['primary'],
+                    color: colors['text'],
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -203,7 +196,7 @@ class _AkunViewState extends State<AkunView> {
           ),
           // Logout Button
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 28, vertical: 8),
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
@@ -268,6 +261,7 @@ class _AkunViewState extends State<AkunView> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

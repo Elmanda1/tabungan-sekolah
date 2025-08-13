@@ -5,7 +5,6 @@ import 'providers/appconfigprovider.dart';
 import 'views/home_view.dart';
 import 'views/login_view.dart';
 import 'views/riwayat_view.dart';
-import 'views/transaksi_view.dart';
 import 'views/akun_view.dart';
 
 void main() {
@@ -93,7 +92,6 @@ class MyApp extends StatelessWidget {
               '/': (context) => const LoginView(),
               '/home': (context) => const HomeView(title: 'Buku Keuangan'),
               '/riwayat': (context) => const RiwayatView(),
-              '/transaksi': (context) => const TransaksiView(),
               '/akun': (context) => const AkunView(),
             },
           );

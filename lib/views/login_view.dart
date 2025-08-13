@@ -11,7 +11,7 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _nisnController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _isPasswordVisible = false;
@@ -45,7 +45,7 @@ class _LoginViewState extends State<LoginView> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       
-      final email = _emailController.text.trim();
+      final nisn = _nisnController.text.trim();
       final password = _passwordController.text;
       
       // Simulate network delay
@@ -55,7 +55,7 @@ class _LoginViewState extends State<LoginView> {
       
       setState(() => _isLoading = false);
       
-      if (AuthService.validateCredentials(email, password)) {
+      if (AuthService.validateCredentials(nisn, password)) {
         if (!mounted) return;
         final firstEnabledRoute = _getFirstEnabledRoute();
         Navigator.of(context).pushReplacementNamed(firstEnabledRoute);
@@ -64,7 +64,7 @@ class _LoginViewState extends State<LoginView> {
         final colors = dummyAppConfig.colorPalette;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Invalid email or password', style: TextStyle(color: Colors.white)),
+            content: const Text('Invalid nisn or password', style: TextStyle(color: Colors.white)),
             backgroundColor: colors['error'],
           ),
         );
@@ -74,7 +74,7 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _nisnController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -92,37 +92,8 @@ class _LoginViewState extends State<LoginView> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo and Welcome Text
-                Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    const Column(
-                      children: [
-                        Text(
-                          'Masuk ke',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 35,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Akun Anda',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 35,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
-                
-                const SizedBox(height: 0),
+                Icon(Icons.school, size: 100, color: colorPalette['primary']),
+                const SizedBox(height: 16),
                 
                 // Sign Up Link
                 Row(
@@ -160,14 +131,14 @@ class _LoginViewState extends State<LoginView> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      // Email Field
+                      // NISN Field
                       TextFormField(
-                        controller: _emailController,
+                        controller: _nisnController,
                         style: TextStyle(color: colorPalette['text']),
                         decoration: InputDecoration(
-                          labelText: 'Email',
+                          labelText: 'NISN',
                           labelStyle: TextStyle(color: colorPalette['text']?.withOpacity(0.7)),
-                          prefixIcon: Icon(Icons.email, color: colorPalette['text']?.withOpacity(0.7)),
+                          prefixIcon: Icon(Icons.credit_card, color: colorPalette['text']?.withOpacity(0.7)),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide(color: colorPalette['border'] ?? Colors.white.withOpacity(0.3)),
@@ -177,13 +148,10 @@ class _LoginViewState extends State<LoginView> {
                             borderSide: BorderSide(color: colorPalette['primary']!),
                           ),
                         ),
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Please enter a valid email';
+                            return 'Masukkan NISN';
                           }
                           return null;
                         },
@@ -229,10 +197,10 @@ class _LoginViewState extends State<LoginView> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
+                            return 'Masukkan Password';
                           }
                           if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
+                            return 'Password minimal 6 karakter';
                           }
                           return null;
                         },
@@ -304,98 +272,6 @@ class _LoginViewState extends State<LoginView> {
                                 ),
                         ),
                       ),
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Divider with "or" text
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              color: colorPalette['border'] ?? Colors.white,
-                              thickness: 1,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Text(
-                              'atau',
-                              style: TextStyle(
-                                color: colorPalette['text'],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              color: colorPalette['border'] ?? Colors.white,
-                              thickness: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Social Login Buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Google
-                          IconButton(
-                            onPressed: _isLoading
-                                ? null
-                                : () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Google sign in coming soon!', style: TextStyle(color: colorPalette['text'])),
-                                      ),
-                                    );
-                                  },
-                            icon: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                Icons.g_mobiledata,
-                                size: 32,
-                                color: Colors.red, 
-                              ),
-                            ),
-                          ),
-                          
-                          const SizedBox(width: 24),
-                          
-                          // Facebook
-                          IconButton(
-                            onPressed: _isLoading
-                                ? null
-                                : () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Facebook sign in coming soon!', style: TextStyle(color: colorPalette['text'])),
-                                      ),
-                                    );
-                                  },
-                            icon: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.facebook,
-                                size: 24,
-                                color: Colors.blue[800],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 24),
                     ],
                   ),
                 ),

@@ -5,7 +5,6 @@ final dummyAppConfig = AppConfig(
   menuTexts: {
     'beranda': 'Beranda',
     'riwayat': 'Riwayat',
-    'transaksi': 'Transaksi',
     'akun': 'Akun',
   },
   menuIcons: {
@@ -48,18 +47,7 @@ final dummyAppConfig = AppConfig(
   featureFlags: <String, bool>{
     // Navigation items
     'feature.beranda.enabled': true,
-    'feature.riwayat.enabled': false,
-    'feature.transaksi.enabled': false,
+    'feature.riwayat.enabled': true,
     'feature.akun.enabled': true,
-    
-    // App features
-    'feature.dark_mode': true,
-    'feature.notifications': true,
-    'feature.biometric_auth': false,
-    'feature.offline_mode': true,
-    
-    // Experimental features
-    'feature.experimental_ui': false,
-    'feature.analytics': true,
   },
 );

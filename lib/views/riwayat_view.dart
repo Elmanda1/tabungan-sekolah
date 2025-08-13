@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import '../models/appconfig.dart';
-import '../components/nav_bar.dart';
+import '../maintemplates.dart';
+import '../components/income_expense_cards.dart';
 
 class RiwayatView extends StatefulWidget {
   const RiwayatView({super.key});
@@ -13,31 +14,31 @@ class RiwayatView extends StatefulWidget {
 }
 
 class _RiwayatViewState extends State<RiwayatView> {
-  // Sample transaction data
+  // Sample transaction data in IDR
   final List<Map<String, dynamic>> _transactions = [
     {
-      'title': 'Grocery Shopping',
-      'amount': -125.75,
+      'title': 'Belanja Bulanan',
+      'amount': -1257500,
       'date': DateTime.now().subtract(const Duration(hours: 2)),
     },
     {
-      'title': 'Salary',
-      'amount': 5000.00,
+      'title': 'Gaji',
+      'amount': 5000000,
       'date': DateTime.now().subtract(const Duration(days: 1)),
     },
     {
-      'title': 'Dinner',
-      'amount': -45.50,
+      'title': 'Makan Malam',
+      'amount': -455000,
       'date': DateTime.now().subtract(const Duration(days: 1, hours: 4)),
     },
     {
-      'title': 'Freelance Work',
-      'amount': 350.00,
+      'title': 'Freelance',
+      'amount': 3500000,
       'date': DateTime.now().subtract(const Duration(days: 2)),
     },
     {
-      'title': 'Electric Bill',
-      'amount': -120.00,
+      'title': 'Tagihan Listrik',
+      'amount': -1200000,
       'date': DateTime.now().subtract(const Duration(days: 3)),
     },
   ];
@@ -61,145 +62,48 @@ class _RiwayatViewState extends State<RiwayatView> {
   Widget build(BuildContext context) {
     final colors = context.watch<AppConfig>().colorPalette;
     final groupedTransactions = _groupTransactionsByDate();
-    final formatter = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
+    final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
-    return Scaffold(
-      backgroundColor: colors['background'],
-      bottomNavigationBar: BottomNavBar(
-        currentRoute: '/riwayat',
-        onItemTapped: (route) {
-          if (route != '/riwayat') {
-            Navigator.pushReplacementNamed(context, route);
-          }
-        },
-      ),
-      body: Column(
-        children: [
-          // Income and Expenses Cards
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 45.0, 16.0, 16.0),
-            child: Row(
-              children: [
-                // Income Card
-                Expanded(
-                  child: Card(
-                    color: colors['card'],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: colors['success']!, width: 0.7),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: colors['success']!.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: Icon(Icons.trending_up, color: colors['success'], size: 24),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Pemasukan',
-                                style: TextStyle(
-                                  color: colors['textSecondary'],
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                formatter.format(_transactions.where((t) => t['amount'] > 0).fold(0.0, (sum, t) => sum + (t['amount'] as num).toDouble())),
-                                style: TextStyle(
-                                  color: colors['text'],
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Expenses Card
-                Expanded(
-                  child: Card(
-                    color: colors['card'],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: colors['error']!, width: 0.7),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: colors['error']!.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: Icon(Icons.trending_down, color: colors['error'], size: 24),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Pengeluaran',
-                                style: TextStyle(
-                                  color: colors['textSecondary'],
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                formatter.format(_transactions.where((t) => t['amount'] < 0).fold(0.0, (sum, t) => sum + (t['amount'] as num).toDouble()).abs()),
-                                style: TextStyle(
-                                  color: colors['text'],
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+    return MainTemplate(
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Income and Expenses Cards
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 45.0, 16.0, 16.0),
+              child: IncomeExpenseCards(
+                income: _transactions
+                    .where((t) => t['amount'] > 0)
+                    .fold(0.0, (sum, t) => sum + (t['amount'] as num).toDouble()),
+                expenses: _transactions
+                    .where((t) => t['amount'] < 0)
+                    .fold(0.0, (sum, t) => sum + (t['amount'] as num).abs().toDouble()),
+                colors: colors,
+              ),
             ),
-          ),
-          // Transaction List Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(35, 8, 5, 0),
-            child: Row(
-              children: [
-                Icon(Icons.receipt_long_outlined, color: colors['primary'], size: 25),
-                const SizedBox(width: 8),
-                Text(
-                  'Transaksi',
-                  style: TextStyle(
-                    color: colors['text'],
-                    fontSize: 22,
+            // Transaction List Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  Icon(Icons.receipt_long_outlined, color: colors['primary'], size: 25),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Transaksi',
+                    style: TextStyle(
+                      color: colors['text'],
+                      fontSize: 22,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          // Transaction List
-          Expanded(
-            child: _buildTransactionList(groupedTransactions, colors, formatter),
-          ),
-        ],
+            // Transaction List
+            _buildTransactionList(groupedTransactions, colors, formatter),
+            const SizedBox(height: 20), // Add some bottom padding
+          ],
+        ),
       ),
     );
   }
@@ -221,10 +125,10 @@ class _RiwayatViewState extends State<RiwayatView> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(25),
-      itemCount: groupedTransactions.length,
-      itemBuilder: (context, index) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+      child: Column(
+        children: List.generate(groupedTransactions.length, (index) {
         final date = groupedTransactions.keys.elementAt(index);
         final transactions = groupedTransactions[date]!;
         
@@ -246,7 +150,8 @@ class _RiwayatViewState extends State<RiwayatView> {
             const SizedBox(height: 16),
           ],
         );
-      },
+        }),
+      ),
     );
   }
 
