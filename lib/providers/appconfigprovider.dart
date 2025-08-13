@@ -49,5 +49,9 @@ final dummyAppConfig = AppConfig(
     'feature.beranda.enabled': true,
     'feature.riwayat.enabled': true,
     'feature.akun.enabled': true,
+    
+    // Home modules
+    'feature.home.dashboard_tabungan.enabled': true,
+    'feature.home.profile_card.enabled': true,
   },
 );

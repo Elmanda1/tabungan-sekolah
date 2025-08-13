@@ -48,19 +48,31 @@ class _HomeViewState extends State<HomeView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Profile Card with Student Info
-              ProfileCard(
-                colors: colors,
-                userName: 'John Doe',
-                studentName: 'John Doe',
-                studentClass: 'XI IPA 1',
-              ),
-              const SizedBox(height: 20),
+              if (appConfig.featureFlags['feature.home.profile_card.enabled'] ?? false)
+                Column(
+                  children: [
+                    ProfileCard(
+                      colors: colors,
+                      userName: 'John Doe',
+                      studentName: 'John Doe',
+                      studentClass: 'XI IPA 1',
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              
               // Dashboard Tabungan
-              DashboardTabungan(
-                colors: colors,
-                currentBalance: _currentBalance,
-              ),
-              const SizedBox(height: 20),
+              if (appConfig.featureFlags['feature.home.dashboard_tabungan.enabled'] ?? false)
+                Column(
+                  children: [
+                    DashboardTabungan(
+                      colors: colors,
+                      currentBalance: _currentBalance,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              
               // Recent Transactions Card
               Card(
                 color: colors['card'],
