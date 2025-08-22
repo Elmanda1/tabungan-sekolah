@@ -19,8 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
         
         $middleware->trustProxies(at: '*');
         
+        // CORS middleware harus di atas untuk handle preflight requests
         $middleware->api([
+            \Illuminate\Http\Middleware\HandleCors::class,
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
+        
+        // Tambah CORS global untuk semua routes
+        $middleware->web([
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
         
