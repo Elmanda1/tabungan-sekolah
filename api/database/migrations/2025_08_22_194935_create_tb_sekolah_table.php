@@ -12,12 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tb_sekolah', function (Blueprint $table) {
-            $table->integer('id_sekolah')->primary();
-            $table->string('nama_sekolah', 255);
-            $table->string('alamat', 255)->nullable();
+            $table->integer('id_sekolah', true);
+            $table->string('nama_sekolah');
+            $table->string('alamat')->nullable();
             $table->string('no_telp', 50)->nullable();
-            $table->string('email', 255)->nullable();
-            $table->string('website', 255)->nullable();
+            $table->string('email')->nullable();
+            $table->string('website')->nullable();
+            $table->timestamps();
         });
     }
 

@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jurusan', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('tb_artikel', function (Blueprint $table) {
+            $table->foreign(['id_sekolah'], 'tb_artikel_ibfk_1')->references(['id_sekolah'])->on('tb_sekolah')->onUpdate('no action')->onDelete('no action');
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jurusan');
+        Schema::table('tb_artikel', function (Blueprint $table) {
+            $table->dropForeign('tb_artikel_ibfk_1');
+        });
     }
 };
