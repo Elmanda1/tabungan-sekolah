@@ -1,0 +1,118 @@
+# Android
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/**/GeneratedPluginRegistrant.kt
+**/android/**/gradle-app.setting
+**/android/**/gradle-app2.setting
+**/android/**/local.properties
+**/android/**/flutter_*/**
+**/android/**/GeneratedPluginRegistrant.java
+**/android/**/GeneratedPluginRegistrant.kt
+
+# iOS
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/.vagrant/
+**/ios/**/DerivedData/
+**/ios/**/Icon?
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/profile
+**/ios/**/xcuserdata
+**/ios/.generated/
+**/ios/Flutter/App.framework/
+**/ios/Flutter/Flutter.framework/
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Runner/GoogleService-Info.plist
+**/ios/Runner/Info.plist
+**/ios/Runner/Runner-Bridging-Header.h
+**/ios/Runner/Runner.entitlements
+**/ios/Runner.xcodeproj/**/xcuserdata/
+**/ios/Runner.xcodeproj/project.xcworkspace/xcuserdata/
+**/ios/Runner.xcodeproj/xcuserdata/
+**/ios/Runner.xcworkspace/contents.xcworkspacedata
+**/ios/Runner.xcworkspace/xcuserdata/
+**/ios/RunnerTests/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/.last_build_id
+
+# Web
+**/web/
+
+# Desktop
+**/windows/
+**/linux/
+**/macos/
+
+# General
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+.metadata
+.packages
+.pub-cache/
+.pub/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Flutter/Dart
+**/doc/api/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Obfuscation related
+app.*.map.json
+
+# Symbolication related
+app.*.symbols
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Coverage files
+coverage/
+
+# Environment variables
+.env
+.env.*
+!.env.example
