@@ -56,18 +56,12 @@ Widget buildInfoCard({
 
 class StudentInfoRow extends StatelessWidget {
   final Map<String, dynamic> colors;
-  final String studentName;
-  final String studentClass;
-  final String? nisn;
-  final String? email;
+  final Map<String, dynamic>? profileData;
 
   const StudentInfoRow({
     Key? key,
     required this.colors,
-    required this.studentName,
-    required this.studentClass,
-    this.nisn,
-    this.email,
+    required this.profileData,
   }) : super(key: key);
 
   @override
@@ -82,31 +76,15 @@ class StudentInfoRow extends StatelessWidget {
             context: context,
             title: 'Nama',
             titleOnly: true,
-            customTitle: studentName,
+            customTitle: profileData?['nama'] ?? 'Nama Siswa',
           ),
           // Student Class Card
           buildInfoCard(
             context: context,
             title: 'Kelas',
             titleOnly: true,
-            customTitle: studentClass,
+            customTitle: profileData?['kelas'] ?? 'Kelas',
           ),
-          // NISN Card if available
-          if (nisn != null)
-            buildInfoCard(
-              context: context,
-              title: 'NISN',
-              titleOnly: true,
-              customTitle: nisn!,
-            ),
-          // Email Card if available
-          if (email != null)
-            buildInfoCard(
-              context: context,
-              title: 'Email',
-              titleOnly: true,
-              customTitle: email!,
-            ),
         ],
       ),
     );
@@ -227,7 +205,7 @@ class _ProfileCardState extends State<ProfileCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Sekolah Menengah Atas Falih',
+                        _profileData?['sekolah'] ?? 'Nama Sekolah',
                         style: TextStyle(
                           color: widget.colors['text'],
                           fontSize: 16,
@@ -263,10 +241,7 @@ class _ProfileCardState extends State<ProfileCard> {
           // Student Info Row
           StudentInfoRow(
             colors: widget.colors,
-            studentName: _profileData?['name'] ?? widget.studentName,
-            studentClass: _profileData?['class'] ?? widget.studentClass,
-            nisn: _profileData?['nisn'],
-            email: _profileData?['email'],
+            profileData: _profileData,
           ),
           if (_errorMessage.isNotEmpty)
             Padding(

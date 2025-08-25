@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'auth_service.dart';
 
 class ProfileService {
-  static const String _baseUrl = 'http://192.168.1.15:8000/api';
+  static const String _baseUrl = 'https://5e58e553e35c.ngrok-free.app/api';
   // Get user profile (read-only)
   static Future<Map<String, dynamic>> getProfile() async {
     try {

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('no_telp', 50)->nullable();
             $table->string('email')->nullable();
             $table->string('website')->nullable();
-            $table->timestamps();
+            $table->timestamps(); 
         });
     }
 

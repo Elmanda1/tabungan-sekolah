@@ -42,7 +42,7 @@ return [
         ],
         'api' => [
             'driver' => 'sanctum',
-            'provider' => 'siswa',
+            'provider' => 'users',
         ],
     ],
 
@@ -66,11 +66,11 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\Models\Akun::class,
         ],
         'siswa' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Siswa::class,
+            'model' => App\Models\Akun::class,
         ],
     ],
 

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('id_akun', true);
             $table->string('username', 100)->unique('username');
             $table->string('password');
-            $table->enum('role', ['admin', 'guru', 'siswa']);
+            $table->enum('role', ['admin','guru', 'siswa']);
             $table->integer('id_guru')->nullable()->index('idx_akun_id_guru');
             $table->integer('id_siswa')->nullable()->index('idx_akun_id_siswa');
             $table->timestamp('created_at')->nullable()->useCurrent();

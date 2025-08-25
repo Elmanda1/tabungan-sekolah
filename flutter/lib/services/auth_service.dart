@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthService {
-  static const String _baseUrl = 'http://127.0.0.1:8000/api';
+  static const String _baseUrl = 'https://5e58e553e35c.ngrok-free.app/api';
   static const _storage = FlutterSecureStorage();
   static String? _token;
 
@@ -12,13 +12,13 @@ class AuthService {
   static String? get token => _token;
 
   // Login with NISN and password
-  static Future<Map<String, dynamic>> login(String nisn, String password, {String? deviceName}) async {
+  static Future<Map<String, dynamic>> login(String username, String password, {String? deviceName}) async {
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'nisn': nisn,
+          'username': username,
           'password': password,
           if (deviceName != null) 'device_name': deviceName,
         }),

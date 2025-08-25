@@ -2,48 +2,86 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens;
 
-class Siswa extends Authenticatable
+class Siswa extends Model
 {
-    use HasApiTokens;
-    
+    use HasFactory;
+
     protected $table = 'tb_siswa';
     protected $primaryKey = 'id_siswa';
-    public $timestamps = false;
 
     protected $fillable = [
-        'nisn',
-        'password',
-        'nama_siswa',
-        'jenis_kelamin',
-        'alamat',
-        'no_telp',
-        'foto',
-        'id_kelas',
         'id_sekolah',
+        'nisn',
+        'nama_siswa',
+        'email',
+        'no_telp',
+        'alamat',
+        'foto'
     ];
 
-    protected $hidden = [
-        'password',
-    ];
-
-    public function kelas(): BelongsTo
-    {
-        return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
-    }
-
-    public function sekolah(): BelongsTo
+    // Relationships
+    public function sekolah()
     {
         return $this->belongsTo(Sekolah::class, 'id_sekolah', 'id_sekolah');
     }
 
-    public function bukuTabungan(): HasOne
+    public function akun()
     {
-        return $this->hasOne(BukuTabungan::class, 'id_siswa', 'id_siswa');
+        return $this->hasOne(Akun::class, 'id_siswa', 'id_siswa');
+    }
+
+    public function kelasSiswa()
+    {
+        return $this->hasMany(KelasSiswa::class, 'id_siswa', 'id_siswa');
+    }
+
+    public function kelas()
+    {
+        return $this->belongsToMany(Kelas::class, 'tb_kelas_siswa', 'id_siswa', 'id_kelas');
+    }
+
+    public function prestasi()
+    {
+        return $this->hasMany(Prestasi::class, 'id_siswa', 'id_siswa');
+    }
+
+    public function krs()
+    {
+        return $this->hasMany(Krs::class, 'id_siswa', 'id_siswa');
+    }
+
+    // Scopes
+    public function scopeBySekolah($query, $idSekolah)
+    {
+        return $query->where('id_sekolah', $idSekolah);
+    }
+
+    public function scopeWithPrestasi($query)
+    {
+        return $query->with('prestasi');
+    }
+
+    public function scopeByKelas($query, $idKelas)
+    {
+        return $query->whereHas('kelas', function($q) use ($idKelas) {
+            $q->where('id_kelas', $idKelas);
+        });
+    }
+
+    // Accessors
+    public function getFotoUrlAttribute()
+    {
+        if ($this->foto) {
+            return asset('photos/' . $this->foto);
+        }
+        return asset('photos/default-siswa.png');
+    }
+
+    public function getKelasTerakhirAttribute()
+    {
+        return $this->kelas()->latest('pivot_created_at')->first();
     }
 }
