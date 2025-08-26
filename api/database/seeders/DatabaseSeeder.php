@@ -23,6 +23,10 @@ class DatabaseSeeder extends Seeder
             PrestasiSeeder::class,
             GaleriSeeder::class,
             AkunSeeder::class,
+            KelasSiswaSeeder::class,
+            JenisTabunganSeeder::class,
+            BukuTabunganSeeder::class,
+            TransaksiTabunganSeeder::class,
         ]);
 
         $this->command->info('✨ All data has been seeded successfully!');

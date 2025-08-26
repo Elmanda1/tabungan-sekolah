@@ -74,16 +74,37 @@ class AuthController extends Controller
             
             // If user is a student
             if (isset($user->id_siswa)) {
-                $siswa = Siswa::with(['sekolah', 'kelas'])->find($user->id_siswa);
+                // Eager load the relationships with proper constraints
+                $siswa = Siswa::with([
+                    'sekolah',
+                    'kelasSiswa' => function($query) {
+                        $query->latest('id_kelas'); // Get the latest class
+                    },
+                    'kelasSiswa.kelas'
+                ])->find($user->id_siswa);
                 
+                if (!$siswa) {
+                    return response()->json([
+                        'message' => 'Student data not found',
+                        'role' => 'siswa'
+                    ], 404);
+                }
+                
+                // Get the latest class name
                 $kelasNama = 'Kelas tidak ditemukan';
-                if ($siswa->kelas && $siswa->kelas->isNotEmpty()) {
-                    $kelasNama = $siswa->kelas->first()->nama_kelas ?? 'Kelas tidak ditemukan';
+                if ($siswa->kelasSiswa->isNotEmpty() && $siswa->kelasSiswa->first()->relationLoaded('kelas')) {
+                    $kelasNama = $siswa->kelasSiswa->first()->kelas->nama_kelas;
+                }
+                
+                // Get school name
+                $sekolahNama = 'Nama Sekolah';
+                if ($siswa->relationLoaded('sekolah') && $siswa->sekolah) {
+                    $sekolahNama = $siswa->sekolah->nama_sekolah;
                 }
                 
                 return response()->json([
                     'role' => 'siswa',
-                    'sekolah' => $siswa->sekolah ? $siswa->sekolah->nama_sekolah : 'Nama Sekolah',
+                    'sekolah' => $sekolahNama,
                     'nama' => $siswa->nama_siswa,
                     'kelas' => $kelasNama
                 ]);

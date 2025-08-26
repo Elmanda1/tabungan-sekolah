@@ -73,12 +73,6 @@ class _RiwayatViewState extends State<RiwayatView> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 45.0, 16.0, 16.0),
               child: IncomeExpenseCards(
-                income: _transactions
-                    .where((t) => t['amount'] > 0)
-                    .fold(0.0, (sum, t) => sum + (t['amount'] as num).toDouble()),
-                expenses: _transactions
-                    .where((t) => t['amount'] < 0)
-                    .fold(0.0, (sum, t) => sum + (t['amount'] as num).abs().toDouble()),
                 colors: colors,
               ),
             ),

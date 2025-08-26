@@ -10,14 +10,16 @@ class KelasSiswa extends Model
     use HasFactory;
 
     protected $table = 'tb_kelas_siswa';
-    protected $primaryKey = 'id_kelas';
-
-    protected $fillable = [
-        'id_kelas',
-        'id_siswa',
-        'tahun_ajaran',
-        'semester'
-    ];
+    protected $primaryKey = ['id_kelas', 'id_siswa'];
+    public $incrementing = false;
+    public $timestamps = false;
+    
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = [];
 
     public function kelas()
     {

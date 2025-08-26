@@ -40,7 +40,9 @@ class Siswa extends Model
 
     public function kelas()
     {
-        return $this->belongsToMany(Kelas::class, 'tb_kelas_siswa', 'id_siswa', 'id_kelas');
+        return $this->belongsToMany(Kelas::class, 'tb_kelas_siswa', 'id_siswa', 'id_kelas')
+            ->withPivot('id_kelas', 'id_siswa')
+            ->using(KelasSiswa::class);
     }
 
     public function prestasi()
@@ -82,6 +84,6 @@ class Siswa extends Model
 
     public function getKelasTerakhirAttribute()
     {
-        return $this->kelas()->latest('pivot_created_at')->first();
+        return $this->kelas()->first();
     }
 }

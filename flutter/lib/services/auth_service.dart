@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthService {
-  static const String _baseUrl = 'https://5e58e553e35c.ngrok-free.app/api';
+  static const String _baseUrl = 'https://ad366f4516a2.ngrok-free.app/api';
   static const _storage = FlutterSecureStorage();
   static String? _token;
 

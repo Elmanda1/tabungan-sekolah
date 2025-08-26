@@ -55,15 +55,16 @@ class TabunganController extends Controller
         $user = $request->user();
         
         $totals = TransaksiTabungan::select(
-                DB::raw('SUM(CASE WHEN jumlah > 0 THEN jumlah ELSE 0 END) as total_income'),
-                DB::raw('SUM(CASE WHEN jumlah < 0 THEN ABS(jumlah) ELSE 0 END) as total_expenses')
+                DB::raw('SUM(CASE WHEN tb_transaksi_tabungan.jenis_transaksi = "setor" THEN tb_transaksi_tabungan.jumlah ELSE 0 END) as total_income'),
+                DB::raw('SUM(CASE WHEN tb_transaksi_tabungan.jenis_transaksi = "tarik" THEN tb_transaksi_tabungan.jumlah ELSE 0 END) as total_expenses')
             )
-            ->where('id_siswa', $user->id_siswa)
+            ->join('tb_buku_tabungan', 'tb_transaksi_tabungan.id_buku_tabungan', '=', 'tb_buku_tabungan.id_buku_tabungan')
+            ->where('tb_buku_tabungan.id_siswa', $user->id_siswa)
             ->first();
 
         return response()->json([
             'total_income' => (float) ($totals->total_income ?? 0),
-            'total_expenses' => (float) ($totals->total_expenses ?? 0)
+            'total_expenses' => (float) abs($totals->total_expenses ?? 0)
         ]);
     }
 }
