@@ -31,4 +31,9 @@ class BukuTabungan extends Model
     {
         return $this->hasMany(TransaksiTabungan::class, 'id_buku_tabungan', 'id_buku_tabungan');
     }
+
+    public function jenisTabungan(): BelongsTo
+    {
+        return $this->belongsTo(JenisTabungan::class, 'id_jenis_tabungan', 'id_jenis_tabungan');
+    }
 }

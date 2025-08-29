@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'auth_service.dart';
 
 class TabunganService {
-  static const String _baseUrl = 'https://ad366f4516a2.ngrok-free.app/api';
+  static const String _baseUrl = 'http://10.0.2.2:8000/api';
 
   // Get transaction history
   static Future<List<Map<String, dynamic>>> getTransactionHistory() async {

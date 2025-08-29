@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'models/appconfig.dart';
 import 'providers/appconfigprovider.dart';
 import 'views/home_view.dart';
@@ -7,7 +8,11 @@ import 'views/login_view.dart';
 import 'views/riwayat_view.dart';
 import 'views/akun_view.dart';
 
-void main() {
+void main() async {
+  // Initialize date formatting for Indonesian locale
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID', null);
+  
   // Use the pre-configured dummyAppConfig
   runApp(MyApp(appConfig: dummyAppConfig));
 }

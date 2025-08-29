@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../models/appconfig.dart';
 import '../maintemplates.dart';
+import '../services/tabungan_service.dart';
 import '../components/income_expense_cards.dart';
 
 class RiwayatView extends StatefulWidget {
@@ -14,54 +15,132 @@ class RiwayatView extends StatefulWidget {
 }
 
 class _RiwayatViewState extends State<RiwayatView> {
-  // Sample transaction data in IDR
-  final List<Map<String, dynamic>> _transactions = [
-    {
-      'title': 'Belanja Bulanan',
-      'amount': -1257500,
-      'date': DateTime.now().subtract(const Duration(hours: 2)),
-    },
-    {
-      'title': 'Gaji',
-      'amount': 5000000,
-      'date': DateTime.now().subtract(const Duration(days: 1)),
-    },
-    {
-      'title': 'Makan Malam',
-      'amount': -455000,
-      'date': DateTime.now().subtract(const Duration(days: 1, hours: 4)),
-    },
-    {
-      'title': 'Freelance',
-      'amount': 3500000,
-      'date': DateTime.now().subtract(const Duration(days: 2)),
-    },
-    {
-      'title': 'Tagihan Listrik',
-      'amount': -1200000,
-      'date': DateTime.now().subtract(const Duration(days: 3)),
-    },
-  ];
+  final Map<String, List<Map<String, dynamic>>> _groupedTransactions = {};
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTransactions();
+  }
+
+  Future<void> _loadTransactions() async {
+    if (!mounted) return;
+    
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    
+    try {
+      final transactions = await TabunganService.getTransactionHistory();
+      
+      if (!mounted) return;
+      
+      if (transactions.isEmpty) {
+        setState(() {
+          _groupedTransactions.clear();
+          _isLoading = false;
+        });
+        return;
+      }
+      
+      _groupTransactions(transactions);
+      setState(() => _isLoading = false);
+      
+    } catch (e) {
+      if (!mounted) return;
+      
+      debugPrint('Error loading transactions: $e');
+      setState(() {
+        _error = 'Gagal memuat riwayat transaksi';
+        _isLoading = false;
+      });
+    }
+  }
 
   // Group transactions by date
-  Map<String, List<Map<String, dynamic>>> _groupTransactionsByDate() {
-    final Map<String, List<Map<String, dynamic>>> grouped = {};
+  void _groupTransactions(List<Map<String, dynamic>> transactions) {
+    _groupedTransactions.clear();
     
-    for (var transaction in _transactions) {
-      final date = DateFormat('EEEE, MMM d, y').format(transaction['date']);
-      if (!grouped.containsKey(date)) {
-        grouped[date] = [];
+    for (var transaction in transactions) {
+      try {
+        // Safely parse the date, handling potential null or invalid formats
+        DateTime? dateTime;
+        if (transaction['tanggal'] != null) {
+          try {
+            dateTime = DateTime.parse(transaction['tanggal'].toString()).toLocal();
+          } catch (e) {
+            debugPrint('Error parsing date: ${transaction['tanggal']}');
+            // Fallback to current date if parsing fails
+            dateTime = DateTime.now();
+          }
+        } else {
+          dateTime = DateTime.now();
+        }
+        
+        final date = DateFormat('EEEE, d MMMM y', 'id_ID').format(dateTime);
+        
+        if (!_groupedTransactions.containsKey(date)) {
+          _groupedTransactions[date] = [];
+        }
+        
+        // Safely parse amount and handle null values
+        final amount = (transaction['jumlah'] is num) 
+            ? (transaction['jumlah'] as num).toDouble() 
+            : 0.0;
+            
+        final jenisTransaksi = transaction['jenis_transaksi']?.toString().toLowerCase() ?? '';
+        
+        // Add transaction to the group
+        _groupedTransactions[date]!.add({
+          'id': transaction['id']?.toString() ?? '',
+          'title': transaction['keterangan']?.toString() ?? 'Transaksi',
+          'amount': jenisTransaksi == 'setor' ? amount : -amount,
+          'date': dateTime,
+          'jenis_tabungan': transaction['jenis_tabungan']?.toString(),
+          'saldo_sesudah': (transaction['saldo_sesudah'] as num?)?.toDouble() ?? 0.0,
+        });
+      } catch (e) {
+        debugPrint('Error processing transaction: $e');
+        // Skip invalid transactions
+        continue;
       }
-      grouped[date]!.add(transaction);
     }
-    
-    return grouped;
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.watch<AppConfig>().colorPalette;
-    final groupedTransactions = _groupTransactionsByDate();
+    
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(_error!),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadTransactions,
+              child: const Text('Coba Lagi'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_groupedTransactions.isEmpty) {
+      return const Center(
+        child: Text('Tidak ada riwayat transaksi'),
+      );
+    }
+
+    final dates = _groupedTransactions.keys.toList()..sort((a, b) => b.compareTo(a));
     final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
     return MainTemplate(
@@ -94,7 +173,31 @@ class _RiwayatViewState extends State<RiwayatView> {
               ),
             ),
             // Transaction List
-            _buildTransactionList(groupedTransactions, colors, formatter),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: Column(
+                children: dates.map((date) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          date,
+                          style: TextStyle(
+                            color: colors['textSecondary'],
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      ..._groupedTransactions[date]!.map((transaction) => _buildTransactionCard(transaction, colors, formatter)).toList(),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
             const SizedBox(height: 20), // Add some bottom padding
           ],
         ),
@@ -102,51 +205,6 @@ class _RiwayatViewState extends State<RiwayatView> {
     );
   }
 
-  Widget _buildTransactionList(
-    Map<String, List<Map<String, dynamic>>> groupedTransactions,
-    Map<String, Color> colors,
-    NumberFormat formatter,
-  ) {
-    if (groupedTransactions.isEmpty) {
-      return Center(
-        child: Text(
-          'No transactions yet',
-          style: TextStyle(
-            color: colors['textSecondary'],
-            fontSize: 16,
-          ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: Column(
-        children: List.generate(groupedTransactions.length, (index) {
-        final date = groupedTransactions.keys.elementAt(index);
-        final transactions = groupedTransactions[date]!;
-        
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                date,
-                style: TextStyle(
-                  color: colors['textSecondary'],
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            ...transactions.map((transaction) => _buildTransactionCard(transaction, colors, formatter)).toList(),
-            const SizedBox(height: 16),
-          ],
-        );
-        }),
-      ),
-    );
   }
 
   Widget _buildTransactionCard(
@@ -210,4 +268,4 @@ class _RiwayatViewState extends State<RiwayatView> {
       ),
     );
   }
-}
+

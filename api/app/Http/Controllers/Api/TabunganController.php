@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TabunganHistoryResource;
+use App\Models\BukuTabungan;
 use App\Models\TransaksiTabungan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,25 +15,50 @@ class TabunganController extends Controller
     {
         $user = $request->user();
         
-        $transactions = TransaksiTabungan::with(['jenisTransaksi'])
-            ->where('id_siswa', $user->id_siswa)
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $transactions = TransaksiTabungan::with(['jenisTransaksi', 'bukuTabungan.jenisTabungan'])
+            ->join('tb_buku_tabungan', 'tb_transaksi_tabungan.id_buku_tabungan', '=', 'tb_buku_tabungan.id_buku_tabungan')
+            ->where('tb_buku_tabungan.id_siswa', $user->id_siswa)
+            ->select([
+                'tb_transaksi_tabungan.*',
+                'tb_buku_tabungan.id_siswa',
+                'tb_buku_tabungan.id_jenis_tabungan',
+                'tb_buku_tabungan.saldo as saldo_terakhir'
+            ])
+            ->orderBy('tb_transaksi_tabungan.tanggal_transaksi', 'desc')
+            ->orderBy('tb_transaksi_tabungan.id_transaksi', 'desc')
+            ->get()
+            ->map(function($transaction) {
+                return [
+                    'id' => $transaction->id_transaksi,
+                    'id_buku_tabungan' => $transaction->id_buku_tabungan,
+                    'id_siswa' => $transaction->id_siswa,
+                    'id_jenis_tabungan' => $transaction->id_jenis_tabungan,
+                    'jenis_transaksi' => $transaction->jenis_transaksi,
+                    'jumlah' => (float) $transaction->jumlah,
+                    'keterangan' => $transaction->keterangan,
+                    'saldo_sebelum' => (float) $transaction->saldo_sebelum,
+                    'saldo_sesudah' => (float) $transaction->saldo_sesudah,
+                    'tanggal' => $transaction->tanggal,
+                    'created_at' => $transaction->created_at,
+                    'updated_at' => $transaction->updated_at,
+                    'saldo' => (float) $transaction->saldo_terakhir,
+                    'jenis_tabungan' => $transaction->bukuTabungan->jenisTabungan->nama_jenis_tabungan ?? 'Tabungan',
+                ];
+            });
 
-        return TabunganHistoryResource::collection($transactions);
+        return response()->json($transactions);
     }
 
     public function saldo(Request $request)
     {
         $user = $request->user();
         
-        $saldo = DB::table('tb_buku_tabungan')
+        $totalSaldo = DB::table('tb_buku_tabungan')
             ->where('id_siswa', $user->id_siswa)
-            ->value('saldo') ?? 0;
+            ->sum('saldo');
 
         return response()->json([
-            'saldo' => (float) $saldo
+            'saldo' => (float) ($totalSaldo ?? 0)
         ]);
     }
 
@@ -40,14 +66,39 @@ class TabunganController extends Controller
     {
         $user = $request->user();
         
-        $transactions = TransaksiTabungan::with(['jenisTransaksi'])
-            ->where('id_siswa', $user->id_siswa)
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('created_at', 'desc')
+        $transactions = TransaksiTabungan::with(['jenisTransaksi', 'bukuTabungan.jenisTabungan'])
+            ->join('tb_buku_tabungan', 'tb_transaksi_tabungan.id_buku_tabungan', '=', 'tb_buku_tabungan.id_buku_tabungan')
+            ->where('tb_buku_tabungan.id_siswa', $user->id_siswa)
+            ->select([
+                'tb_transaksi_tabungan.*',
+                'tb_buku_tabungan.id_siswa',
+                'tb_buku_tabungan.id_jenis_tabungan',
+                'tb_buku_tabungan.saldo as saldo_terakhir'
+            ])
+            ->orderBy('tb_transaksi_tabungan.tanggal_transaksi', 'desc')
+            ->orderBy('tb_transaksi_tabungan.id_transaksi', 'desc')
             ->take(3)
-            ->get();
+            ->get()
+            ->map(function($transaction) {
+                return [
+                    'id' => $transaction->id_transaksi,
+                    'id_buku_tabungan' => $transaction->id_buku_tabungan,
+                    'id_siswa' => $transaction->id_siswa,
+                    'id_jenis_tabungan' => $transaction->id_jenis_tabungan,
+                    'jenis_transaksi' => $transaction->jenis_transaksi,
+                    'jumlah' => (float) $transaction->jumlah,
+                    'keterangan' => $transaction->keterangan,
+                    'saldo_sebelum' => (float) $transaction->saldo_sebelum,
+                    'saldo_sesudah' => (float) $transaction->saldo_sesudah,
+                    'tanggal' => $transaction->tanggal,
+                    'created_at' => $transaction->created_at,
+                    'updated_at' => $transaction->updated_at,
+                    'saldo' => (float) $transaction->saldo_terakhir,
+                    'jenis_tabungan' => $transaction->bukuTabungan->jenisTabungan->nama_jenis_tabungan ?? 'Tabungan',
+                ];
+            });
 
-        return TabunganHistoryResource::collection($transactions);
+        return response()->json($transactions);
     }
 
     public function incomeExpenses(Request $request)
