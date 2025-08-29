@@ -64,23 +64,60 @@ class _RiwayatViewState extends State<RiwayatView> {
   void _groupTransactions(List<Map<String, dynamic>> transactions) {
     _groupedTransactions.clear();
     
+    // Debug: Print all available keys from the first transaction
+    if (transactions.isNotEmpty) {
+      debugPrint('Available transaction keys: ${transactions.first.keys}');
+    }
+    
     for (var transaction in transactions) {
       try {
-        // Safely parse the date, handling potential null or invalid formats
+        // Debug: Print the raw transaction data
+        debugPrint('Processing transaction: $transaction');
+        
         DateTime? dateTime;
-        if (transaction['tanggal'] != null) {
+        
+        // Try to get date from various possible fields
+        final dateString = transaction['tanggal']?.toString() ?? 
+                          transaction['tanggal_transaksi']?.toString() ??
+                          transaction['created_at']?.toString();
+        
+        debugPrint('Raw date string: $dateString');
+        
+        if (dateString != null) {
           try {
-            dateTime = DateTime.parse(transaction['tanggal'].toString()).toLocal();
+            // Handle different date formats
+            if (dateString.contains('T')) {
+              // Handle ISO 8601 format with timezone
+              dateTime = DateTime.parse(dateString).toLocal();
+            } else if (dateString.contains('-')) {
+              // Handle YYYY-MM-DD format
+              dateTime = DateFormat('yyyy-MM-dd').parse(dateString).toLocal();
+            } else if (dateString.contains('/')) {
+              // Handle DD/MM/YYYY format
+              dateTime = DateFormat('dd/MM/yyyy').parse(dateString).toLocal();
+            }
+            
+            if (dateTime == null) {
+              debugPrint('Unrecognized date format: $dateString');
+            }
           } catch (e) {
-            debugPrint('Error parsing date: ${transaction['tanggal']}');
-            // Fallback to current date if parsing fails
-            dateTime = DateTime.now();
+            debugPrint('Error parsing date "$dateString": $e');
           }
         } else {
-          dateTime = DateTime.now();
+          debugPrint('No date field found in transaction');
         }
         
-        final date = DateFormat('EEEE, d MMMM y', 'id_ID').format(dateTime);
+        // Fallback to current date if parsing fails
+        dateTime ??= DateTime.now();
+        
+        debugPrint('Parsed date: ${dateTime.toIso8601String()}');
+        
+        // Format date without time component
+        final date = DateFormat('EEEE, d MMMM y', 'id_ID').format(DateTime(
+          dateTime.year,
+          dateTime.month,
+          dateTime.day,
+        ));
         
         if (!_groupedTransactions.containsKey(date)) {
           _groupedTransactions[date] = [];
@@ -92,15 +129,17 @@ class _RiwayatViewState extends State<RiwayatView> {
             : 0.0;
             
         final jenisTransaksi = transaction['jenis_transaksi']?.toString().toLowerCase() ?? '';
+        final isSetor = jenisTransaksi == 'setor';
         
         // Add transaction to the group
         _groupedTransactions[date]!.add({
           'id': transaction['id']?.toString() ?? '',
           'title': transaction['keterangan']?.toString() ?? 'Transaksi',
-          'amount': jenisTransaksi == 'setor' ? amount : -amount,
+          'amount': isSetor ? amount.abs() : -amount.abs(), // Ensure consistent sign handling
           'date': dateTime,
           'jenis_tabungan': transaction['jenis_tabungan']?.toString(),
           'saldo_sesudah': (transaction['saldo_sesudah'] as num?)?.toDouble() ?? 0.0,
+          'is_setor': isSetor, // Add this for easier type checking
         });
       } catch (e) {
         debugPrint('Error processing transaction: $e');
@@ -248,7 +287,11 @@ class _RiwayatViewState extends State<RiwayatView> {
           ),
         ),
         subtitle: Text(
-          DateFormat('h:mm a').format(transaction['date']),
+          DateFormat('dd MMM yyyy', 'id_ID').format(DateTime(
+            transaction['date'].year,
+            transaction['date'].month,
+            transaction['date'].day,
+          )),
           style: TextStyle(
             color: colors['textTertiary'],
             fontSize: 11,

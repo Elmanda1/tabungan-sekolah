@@ -128,7 +128,10 @@ class _RiwayatSingkatState extends State<RiwayatSingkat> {
                     final isExpense = transaction['jenis_transaksi'] == 'tarik';
                     final amount = double.tryParse(transaction['jumlah']?.toString() ?? '0') ?? 0;
                     final date = DateTime.parse(transaction['tanggal_transaksi'] ?? DateTime.now().toString());
-                    final formattedDate = DateFormat('dd MMM yyyy, HH:mm').format(date);
+                    // Format date without time component
+                    final formattedDate = DateFormat('dd MMM yyyy', 'id_ID').format(
+                      DateTime(date.year, date.month, date.day)
+                    );
                     
                     return Container(
                       decoration: BoxDecoration(
