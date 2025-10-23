@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'models/appconfig.dart';
 import 'providers/appconfigprovider.dart';
+import 'providers/provider_registrar.dart';
 import 'views/home_view.dart';
 import 'views/login_view.dart';
 import 'views/riwayat_view.dart';
@@ -24,8 +25,8 @@ class MyApp extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: appConfig,
+    return MultiProvider(
+      providers: getProviders(appConfig),
       child: Builder(
         builder: (context) {
           final config = Provider.of<AppConfig>(context);

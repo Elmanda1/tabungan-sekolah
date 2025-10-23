@@ -17,12 +17,13 @@ class TabunganService {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return List<Map<String, dynamic>>.from(data);
+        final result = List<Map<String, dynamic>>.from(data);
+        return result;
       }
-      return [];
+      throw Exception('Failed to get transaction history');
     } catch (e) {
       debugPrint('Error getting transaction history: $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -37,12 +38,13 @@ class TabunganService {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return List<Map<String, dynamic>>.from(data);
+        final result = List<Map<String, dynamic>>.from(data);
+        return result;
       }
-      return [];
+      throw Exception('Failed to get recent transactions');
     } catch (e) {
       debugPrint('Error getting recent transactions: $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -56,12 +58,13 @@ class TabunganService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final result = jsonDecode(response.body);
+        return result;
       }
-      return {'total_income': 0, 'total_expenses': 0};
+      throw Exception('Failed to get income and expenses');
     } catch (e) {
       debugPrint('Error getting income/expenses: $e');
-      return {'total_income': 0, 'total_expenses': 0};
+      rethrow;
     }
   }
 
@@ -75,39 +78,13 @@ class TabunganService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final result = jsonDecode(response.body);
+        return result;
       }
-      return {'saldo': 0};
+      throw Exception('Failed to get balance');
     } catch (e) {
       debugPrint('Error getting balance: $e');
-      return {'saldo': 0};
-    }
-  }
-
-  // Get user profile
-  static Future<Map<String, dynamic>> getUserProfile() async {
-    try {
-      final headers = await AuthService.getAuthHeaders();
-      final response = await http.get(
-        Uri.parse('$_baseUrl/profile'),
-        headers: headers,
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      }
-      return {
-        'nama_sekolah': 'N/A',
-        'nama_siswa': 'N/A',
-        'kelas': 'N/A',
-      };
-    } catch (e) {
-      debugPrint('Error getting user profile: $e');
-      return {
-        'nama_sekolah': 'N/A',
-        'nama_siswa': 'N/A',
-        'kelas': 'N/A',
-      };
+      rethrow;
     }
   }
 }

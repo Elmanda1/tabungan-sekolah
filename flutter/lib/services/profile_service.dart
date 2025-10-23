@@ -16,7 +16,7 @@ class ProfileService {
         debugPrint('No auth token found in AuthService');
         final tokenFromStorage = await const FlutterSecureStorage().read(key: 'auth_token');
         debugPrint('Token from storage: ${tokenFromStorage != null ? 'found' : 'not found'}');
-        return {'success': false, 'message': 'No authentication token found'};
+        throw Exception('No authentication token found');
       }
 
       debugPrint('Using token: ${AuthService.token}');
@@ -38,26 +38,15 @@ class ProfileService {
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         log('Successfully parsed profile data');
-        return {
-          'success': true,
-          'data': responseData,
-        };
+        return responseData;
       } else {
         log('Failed to fetch profile. Status code: ${response.statusCode}');
-        return {
-          'success': false,
-          'message': 'Failed to fetch profile',
-          'statusCode': response.statusCode,
-          'response': response.body,
-        };
+        throw Exception('Failed to fetch profile');
       }
     } catch (e, stackTrace) {
       log('Profile fetch error: $e');
       log('Stack trace: $stackTrace');
-      return {
-        'success': false,
-        'message': 'Connection error: $e',
-      };
+      rethrow;
     }
   }
 }
