@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../providers/appconfigprovider.dart';
 import '../services/auth_service.dart';
+import '../services/error_service.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -15,6 +16,12 @@ class _LoginViewState extends State<LoginView> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _isPasswordVisible = false;
+  final ErrorService _errorService = ErrorService();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   // Get the first enabled feature route
   String _getFirstEnabledRoute() {
@@ -53,22 +60,25 @@ class _LoginViewState extends State<LoginView> {
       
       if (!mounted) return;
       
-      setState(() => _isLoading = false);
-      
-      final loginResult = await AuthService.login(nisn, password);
-      if (loginResult['success'] == true) {
+      try {
+        await AuthService.login(nisn, password);
         if (!mounted) return;
         final firstEnabledRoute = _getFirstEnabledRoute();
         Navigator.of(context).pushReplacementNamed(firstEnabledRoute);
-      } else {
+      } catch (e) {
         if (!mounted) return;
+        final friendlyMessage = await _errorService.getFriendlyErrorMessage(e);
         final colors = dummyAppConfig.colorPalette;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Invalid nisn or password', style: TextStyle(color: Colors.white)),
+            content: Text(friendlyMessage, style: const TextStyle(color: Colors.white)),
             backgroundColor: colors['error'],
           ),
         );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }
@@ -130,6 +140,7 @@ class _LoginViewState extends State<LoginView> {
                 // Login Form
                 Form(
                   key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(
                     children: [
                       // NISN Field
@@ -154,6 +165,9 @@ class _LoginViewState extends State<LoginView> {
                           if (value == null || value.isEmpty) {
                             return 'Masukkan NISN';
                           }
+                          if (value.length != 10) {
+                            return 'NISN must be 10 digits';
+                          }
                           return null;
                         },
                       ),
@@ -165,9 +179,7 @@ class _LoginViewState extends State<LoginView> {
                         controller: _passwordController,
                         style: TextStyle(color: colorPalette['text']),
                         onFieldSubmitted: (value) {
-                          if (_formKey.currentState?.validate() ?? false) {
                             _handleLogin();
-                          }
                         },
                         obscureText: !_isPasswordVisible,
                         decoration: InputDecoration(

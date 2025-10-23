@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/appconfig.dart';
 import '../services/profile_service.dart';
+import '../services/error_service.dart';
 
 typedef InfoCardBuilder = Widget Function({
   required String title,
@@ -113,6 +114,7 @@ class _ProfileCardState extends State<ProfileCard> {
   Map<String, dynamic>? _profileData;
   bool _isLoading = true;
   String _errorMessage = '';
+  final ErrorService _errorService = ErrorService();
 
   @override
   void initState() {
@@ -138,15 +140,9 @@ class _ProfileCardState extends State<ProfileCard> {
       
       if (mounted) {
         setState(() {
-          if (result['success'] == true) {
-            _profileData = result['data'];
-            log('Profile data loaded successfully');
-            log('Data: $_profileData');
-          } else {
-            _errorMessage = result['message'] ?? 'Failed to load profile';
-            log('Profile load failed: $_errorMessage');
-            log('Status code: ${result['statusCode']}');
-          }
+          _profileData = result;
+          log('Profile data loaded successfully');
+          log('Data: $_profileData');
           _isLoading = false;
         });
       }
@@ -154,8 +150,9 @@ class _ProfileCardState extends State<ProfileCard> {
       log('Exception during profile load: $e');
       log('Stack trace: $stackTrace', error: e, stackTrace: stackTrace);
       if (mounted) {
+        final friendlyMessage = await _errorService.getFriendlyErrorMessage(e);
         setState(() {
-          _errorMessage = 'Error loading profile: ${e.toString()}';
+          _errorMessage = friendlyMessage;
           _isLoading = false;
         });
       }

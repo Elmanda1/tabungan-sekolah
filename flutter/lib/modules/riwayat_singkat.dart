@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../services/tabungan_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/tabungan_provider.dart';
 
-class RiwayatSingkat extends StatefulWidget {
+class RiwayatSingkat extends StatelessWidget {
   final Map<String, Color> colors;
   final VoidCallback onViewAll;
 
@@ -13,26 +14,16 @@ class RiwayatSingkat extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<RiwayatSingkat> createState() => _RiwayatSingkatState();
-}
-
-class _RiwayatSingkatState extends State<RiwayatSingkat> {
-  late Future<List<Map<String, dynamic>>> _transactionsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _transactionsFuture = TabunganService.getRecentTransactions();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final tabunganProvider = context.watch<TabunganProvider>();
+    final transactions = tabunganProvider.recentTransactions;
+
     return Card(
-      color: widget.colors['card'],
+      color: colors['card'],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
         side: BorderSide(
-          color: widget.colors['outline']!,
+          color: colors['outline']!,
           width: 1,
         ),
       ),
@@ -47,13 +38,13 @@ class _RiwayatSingkatState extends State<RiwayatSingkat> {
                 Flexible(
                   child: Row(
                     children: [
-                      Icon(Icons.receipt_long_outlined, size: 24, color: widget.colors['primary']),
+                      Icon(Icons.receipt_long_outlined, size: 24, color: colors['primary']),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
                           'Transaksi',
                           style: TextStyle(
-                            color: widget.colors['text'],
+                            color: colors['text'],
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
@@ -64,7 +55,7 @@ class _RiwayatSingkatState extends State<RiwayatSingkat> {
                   ),
                 ),
                 TextButton(
-                  onPressed: widget.onViewAll,
+                  onPressed: onViewAll,
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.only(left: 8, top: 4, bottom: 4),
                     minimumSize: Size.zero,
@@ -74,7 +65,7 @@ class _RiwayatSingkatState extends State<RiwayatSingkat> {
                   child: Text(
                     'Lihat Semua',
                     style: TextStyle(
-                      color: widget.colors['primary'],
+                      color: colors['primary'],
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -84,109 +75,88 @@ class _RiwayatSingkatState extends State<RiwayatSingkat> {
             ),
             const SizedBox(height: 16),
             // Transaction List
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: _transactionsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Gagal memuat transaksi',
-                      style: TextStyle(color: widget.colors['error']),
+            if (transactions.isEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Text(
+                    'Tidak ada transaksi terbaru',
+                    style: TextStyle(
+                      color: colors['textTertiary'],
+                      fontSize: 13,
                     ),
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                itemCount: transactions.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final transaction = transactions[index];
+                  final isExpense = transaction['jenis_transaksi'] == 'tarik';
+                  final amount = double.tryParse(transaction['jumlah']?.toString() ?? '0') ?? 0;
+                  final date = DateTime.parse(transaction['tanggal_transaksi'] ?? DateTime.now().toString());
+                  // Format date without time component
+                  final formattedDate = DateFormat('dd MMM yyyy', 'id_ID').format(
+                    DateTime(date.year, date.month, date.day)
                   );
-                }
-
-                final transactions = snapshot.data ?? [];
-                
-                if (transactions.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: Text(
-                        'Tidak ada transaksi terbaru',
+                  
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: colors['surface'],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      minVerticalPadding: 0,
+                      dense: true,
+                      leading: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: isExpense 
+                            ? colors['error']!.withOpacity(0.1)
+                            : colors['success']!.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          isExpense ? Icons.trending_down : Icons.trending_up,
+                          color: isExpense ? colors['error'] : colors['success'],
+                          size: 18,
+                        ),
+                      ),
+                      title: Text(
+                        isExpense ? 'Penarikan' : 'Setoran',
                         style: TextStyle(
-                          color: widget.colors['textTertiary'],
+                          color: colors['text'],
                           fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          height: 1.2,
+                        ),
+                      ),
+                      subtitle: Text(
+                        formattedDate,
+                        style: TextStyle(
+                          color: colors['textTertiary'],
+                          fontSize: 11,
+                          height: 1.2,
+                        ),
+                      ),
+                      trailing: Text(
+                        '${isExpense ? '-' : '+'}Rp${NumberFormat('#,###', 'id_ID').format(amount.abs().toInt())}',
+                        style: TextStyle(
+                          color: isExpense ? colors['error'] : colors['success'],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
                         ),
                       ),
                     ),
                   );
-                }
-
-                return ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                  itemCount: transactions.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final transaction = transactions[index];
-                    final isExpense = transaction['jenis_transaksi'] == 'tarik';
-                    final amount = double.tryParse(transaction['jumlah']?.toString() ?? '0') ?? 0;
-                    final date = DateTime.parse(transaction['tanggal_transaksi'] ?? DateTime.now().toString());
-                    // Format date without time component
-                    final formattedDate = DateFormat('dd MMM yyyy', 'id_ID').format(
-                      DateTime(date.year, date.month, date.day)
-                    );
-                    
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: widget.colors['surface'],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                        minVerticalPadding: 0,
-                        dense: true,
-                        leading: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: isExpense 
-                              ? widget.colors['error']!.withOpacity(0.1)
-                              : widget.colors['success']!.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            isExpense ? Icons.trending_down : Icons.trending_up,
-                            color: isExpense ? widget.colors['error'] : widget.colors['success'],
-                            size: 18,
-                          ),
-                        ),
-                        title: Text(
-                          isExpense ? 'Penarikan' : 'Setoran',
-                          style: TextStyle(
-                            color: widget.colors['text'],
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            height: 1.2,
-                          ),
-                        ),
-                        subtitle: Text(
-                          formattedDate,
-                          style: TextStyle(
-                            color: widget.colors['textTertiary'],
-                            fontSize: 11,
-                            height: 1.2,
-                          ),
-                        ),
-                        trailing: Text(
-                          '${isExpense ? '-' : '+'}Rp${NumberFormat('#,###', 'id_ID').format(amount.abs().toInt())}',
-                          style: TextStyle(
-                            color: isExpense ? widget.colors['error'] : widget.colors['success'],
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                },
+              ),
           ],
         ),
       ),
