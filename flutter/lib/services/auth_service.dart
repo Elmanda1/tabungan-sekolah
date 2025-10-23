@@ -12,7 +12,7 @@ class AuthService {
   static String? get token => _token;
 
   // Login with NISN and password
-  static Future<Map<String, dynamic>> login(String username, String password, {String? deviceName}) async {
+  static Future<void> login(String username, String password, {String? deviceName}) async {
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl/auth/login'),
@@ -29,13 +29,13 @@ class AuthService {
         if (data['status'] == 'success') {
           _token = data['access_token'];
           await _storage.write(key: 'auth_token', value: _token);
-          return {'success': true};
+          return;
         }
       }
-      return {'success': false, 'message': 'Login failed. Please check your credentials.'};
+      throw Exception('Login failed. Please check your credentials.');
     } catch (e) {
       debugPrint('Login error: $e');
-      return {'success': false, 'message': 'Connection error. Please try again.'};
+      rethrow;
     }
   }
 
