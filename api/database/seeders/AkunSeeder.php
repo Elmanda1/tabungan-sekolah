@@ -41,7 +41,7 @@ class AkunSeeder extends Seeder
         foreach ($siswaList as $siswa) {
             $username = strtolower(str_replace(' ', '', explode(' ', $siswa->nama_siswa)[0]));
             Akun::create([
-                'username' => $username . $siswa->nisn,
+                'username' => (string)$siswa->nisn,
                 'password' => Hash::make('siswa123'),
                 'role' => 'siswa',
                 'id_guru' => null,

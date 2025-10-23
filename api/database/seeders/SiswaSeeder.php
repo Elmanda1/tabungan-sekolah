@@ -16,7 +16,7 @@ class SiswaSeeder extends Seeder
         $sekolahList = Sekolah::all();
         
         $counter = 0;
-        $nispCounter = 1001; // Starting NISN
+        $nispCounter = 1000000000; // Starting NISN (10 digits)
         
         foreach ($sekolahList as $sekolah) {
             // Setiap sekolah minimal 30 siswa (total 60 siswa untuk 2 sekolah)
@@ -28,7 +28,7 @@ class SiswaSeeder extends Seeder
                 
                 Siswa::create([
                     'id_sekolah' => $sekolah->id_sekolah,
-                    'nisn' => $nispCounter++,
+                    'nisn' => (string)$nispCounter++,
                     'nama_siswa' => $fullName,
                     'email' => $this->generateEmail($firstName, $lastName),
                     'no_telp' => $faker->phoneNumber,

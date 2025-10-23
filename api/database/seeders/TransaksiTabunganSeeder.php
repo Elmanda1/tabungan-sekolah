@@ -7,19 +7,20 @@ use App\Models\Guru;
 use App\Models\TransaksiTabungan;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class TransaksiTabunganSeeder extends Seeder
 {
     public function run()
     {
         // Disable foreign key checks
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         
         // Clear existing data
         TransaksiTabungan::truncate();
         
         // Re-enable foreign key checks
-        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // Get all tabungan accounts
         $bukuTabungans = BukuTabungan::all();
@@ -58,6 +59,8 @@ class TransaksiTabunganSeeder extends Seeder
                 $saldo += $jenis === 'setor' ? $jumlah : -$jumlah;
             }
             
+            // Save the final calculated saldo to the BukuTabungan model
+            $tabungan->saldo = $saldo;
             $tabungan->save();
         }
 
