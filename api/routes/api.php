@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AkunController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TabunganController;
 use Illuminate\Http\Request;
@@ -27,13 +28,13 @@ Route::get('/test', function () {
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Authentication
-    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::get('/akun', [AkunController::class, 'profile']);
+    Route::post('/gantipw', [AkunController::class, 'changePassword']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     
     // Tabungan
     Route::prefix('tabungan')->group(function () {
-        Route::get('/history', [TabunganController::class, 'history']);
-        Route::get('/history3', [TabunganController::class, 'history3']);
+        Route::post('/history', [TabunganController::class, 'history']);
         Route::get('/income-expenses', [TabunganController::class, 'incomeExpenses']);
         Route::get('/saldo', [TabunganController::class, 'saldo']);
     });
