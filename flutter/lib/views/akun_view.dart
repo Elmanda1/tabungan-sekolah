@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/appconfig.dart';
 import '../maintemplates.dart';
+import '../services/akun_service.dart';
 
 class AkunView extends StatefulWidget {
   const AkunView({super.key});
@@ -11,9 +12,89 @@ class AkunView extends StatefulWidget {
 }
 
 class _AkunViewState extends State<AkunView> {
-  final _emailController = TextEditingController(text: 'john.doe@example.com');
-  final _passwordController = TextEditingController(text: 'rapip');
-  bool _obscurePassword = true;
+  Map<String, dynamic>? _userData;
+  bool _isLoading = true;
+
+  final _currentPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmNewPasswordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final userData = await AkunService.getAkunInfo();
+      setState(() {
+        _userData = userData;
+        _isLoading = false;
+      });
+    } catch (e) {
+      // Handle error
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _changePassword() async {
+    if (_newPasswordController.text != _confirmNewPasswordController.text) {
+      // Show error dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: const Text('New passwords do not match.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    try {
+      await AkunService.changePassword(
+        _currentPasswordController.text,
+        _newPasswordController.text,
+      );
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Success'),
+          content: const Text('Password changed successfully.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      // Show error dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,60 +102,62 @@ class _AkunViewState extends State<AkunView> {
 
     return MainTemplate(
       backgroundColor: colors['background'],
-      body: SingleChildScrollView(
-        child: Column(
-        children: [
-          // Profile Card
-          Container(
-            margin: const EdgeInsets.only(left: 25, right: 25, top: 50, bottom: 25),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colors['primary'],
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Row(
-              children: [
-                // Profile Icon
-                Container(
-                  width: 60,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    color: colors['background'],
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.person_outline,
-                    size: 32,
-                    color: colors['text'],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                // User Info
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'John Doe',
-                      style: TextStyle(
-                        color: colors['text'],
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Profile Card
+                  Container(
+                    margin: const EdgeInsets.only(left: 25, right: 25, top: 50, bottom: 25),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colors['primary'],
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Siswa',
-                      style: TextStyle(
-                        color: colors['text']?.withOpacity(0.8),
-                        fontSize: 14,
-                      ),
+                    child: Row(
+                      children: [
+                        // Profile Icon
+                        Container(
+                          width: 60,
+                          height: 90,
+                          decoration: BoxDecoration(
+                            color: colors['background'],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.person_outline,
+                            size: 32,
+                            color: colors['text'],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // User Info
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _userData?['nama_siswa'] ?? 'User',
+                              style: TextStyle(
+                                color: colors['text'],
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _userData?['kelas'] ?? 'Role',
+                              style: TextStyle(
+                                color: colors['text']?.withOpacity(0.8),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          //email & password card
+                  ),
+          // Change Password Card
           Container(
             margin: const EdgeInsets.only(left: 25, right: 25, bottom: 25),
             padding: const EdgeInsets.all(25),
@@ -84,17 +167,17 @@ class _AkunViewState extends State<AkunView> {
             ),
             child: Column(
               children: [
-                // Email
+                // Title
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Icon(
-                      Icons.email_outlined,
+                      Icons.lock_outline,
                       color: colors['primaryLight'],
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Email',
+                      'Change Password',
                       style: TextStyle(
                         color: colors['text'],
                         fontSize: 16,
@@ -102,94 +185,33 @@ class _AkunViewState extends State<AkunView> {
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: colors['surface'],
-                    borderRadius: BorderRadius.circular(11),
-                    border: Border.all(color: colors['outline'] ?? Colors.grey.shade300),
-                  ),
-                  child: TextFormField(
-                    controller: _emailController,
-                    style: TextStyle(
-                      color: colors['text'],
-                      fontSize: 14,
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                    onChanged: (value) {
-                      // Handle email change
-                    },
-                  ),
                 ),
                 const SizedBox(height: 24),
-                // Password
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.lock_outlined,
-                      color: colors['primaryLight'],
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Password',
-                      style: TextStyle(
-                        color: colors['text'],
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                // Current Password
+                TextFormField(
+                  controller: _currentPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: 'Current Password'),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: colors['surface'],
-                    borderRadius: BorderRadius.circular(11),
-                    border: Border.all(color: colors['outline'] ?? Colors.grey.shade300),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          style: TextStyle(
-                            color: colors['text'],
-                            fontSize: 14,
-                          ),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Icon(
-                            _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                            color: colors['textSecondary'],
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 16),
+                // New Password
+                TextFormField(
+                  controller: _newPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: 'New Password'),
+                ),
+                const SizedBox(height: 16),
+                // Confirm New Password
+                TextFormField(
+                  controller: _confirmNewPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: 'Confirm New Password'),
+                ),
+                const SizedBox(height: 24),
+                // Change Password Button
+                ElevatedButton(
+                  onPressed: _changePassword,
+                  child: const Text('Change Password'),
                 ),
               ],
             ),

@@ -7,11 +7,11 @@ class TabunganService {
   static const String _baseUrl = 'http://10.0.2.2:8000/api';
 
   // Get transaction history
-  static Future<List<Map<String, dynamic>>> getTransactionHistory() async {
+  static Future<List<Map<String, dynamic>>> getTransactionHistory({int limit = 10, int page = 1}) async {
     try {
       final headers = await AuthService.getAuthHeaders();
       final response = await http.get(
-        Uri.parse('$_baseUrl/tabungan/history'),
+        Uri.parse('$_baseUrl/tabungan/history?count=$limit&page=$page'),
         headers: headers,
       );
 
@@ -29,23 +29,7 @@ class TabunganService {
 
   // Get recent transactions (last 3)
   static Future<List<Map<String, dynamic>>> getRecentTransactions() async {
-    try {
-      final headers = await AuthService.getAuthHeaders();
-      final response = await http.get(
-        Uri.parse('$_baseUrl/tabungan/history3'),
-        headers: headers,
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        final result = List<Map<String, dynamic>>.from(data);
-        return result;
-      }
-      throw Exception('Failed to get recent transactions');
-    } catch (e) {
-      debugPrint('Error getting recent transactions: $e');
-      rethrow;
-    }
+    return getTransactionHistory(limit: 3);
   }
 
   // Get income and expenses summary

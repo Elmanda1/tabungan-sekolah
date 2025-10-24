@@ -20,13 +20,25 @@ class RiwayatView extends StatefulWidget {
 
 class _RiwayatViewState extends State<RiwayatView> {
   final DialogService _dialogService = DialogService();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<RiwayatProvider>(context, listen: false).fetchTransactions();
+      Provider.of<RiwayatProvider>(context, listen: false).refresh();
     });
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        Provider.of<RiwayatProvider>(context, listen: false).fetchMoreTransactions();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -54,131 +66,59 @@ class _RiwayatViewState extends State<RiwayatView> {
             );
           }
 
-          final groupedTransactions = _groupTransactions(riwayatProvider.transactions);
+          final groupedTransactions = riwayatProvider.groupedTransactions;
           final dates = groupedTransactions.keys.toList()..sort((a, b) => b.compareTo(a));
           final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Income and Expenses Cards
-                Padding(
+          return ListView.builder(
+            controller: _scrollController,
+            itemCount: dates.length + (riwayatProvider.hasMore ? 1 : 0) + 1, // +1 for IncomeExpenseCards
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Padding(
                   padding: const EdgeInsets.fromLTRB(16.0, 45.0, 16.0, 16.0),
                   child: IncomeExpenseCards(
                     colors: colors,
-                    income: tabunganProvider.income, // Use income from TabunganProvider
-                    expenses: tabunganProvider.expenses, // Use expenses from TabunganProvider
+                    income: tabunganProvider.income,
+                    expenses: tabunganProvider.expenses,
                   ),
-                ),
-                // Transaction List Header
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Icon(Icons.receipt_long_outlined, color: colors['primary'], size: 25),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Transaksi',
-                        style: TextStyle(
-                          color: colors['text'],
-                          fontSize: 22,
-                        ),
+                );
+              }
+              // Adjust index for the actual transaction data
+              final transactionIndex = index - 1;
+
+              if (transactionIndex == dates.length) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final date = dates[transactionIndex];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25.0),
+                    child: Text(
+                      date,
+                      style: TextStyle(
+                        color: colors['textSecondary'],
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                // Transaction List
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Column(
-                    children: dates.map((date) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              date,
-                              style: TextStyle(
-                                color: colors['textSecondary'],
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          ...groupedTransactions[date]!.map((transaction) => _buildTransactionCard(transaction, colors, formatter)).toList(),
-                          const SizedBox(height: 16),
-                        ],
-                      );
-                    }).toList(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Column(
+                      children: groupedTransactions[date]!.map((transaction) => _buildTransactionCard(transaction, colors, formatter)).toList(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20), // Add some bottom padding
-              ],
-            ),
+                  const SizedBox(height: 16),
+                ],
+              );
+            },
           );
         },
       ),
     );
-  }
-
-  Map<String, List<Map<String, dynamic>>> _groupTransactions(List<Map<String, dynamic>> transactions) {
-    final Map<String, List<Map<String, dynamic>>> groupedTransactions = {};
-    for (var transaction in transactions) {
-      try {
-        DateTime? dateTime;
-        final dateString = transaction['tanggal']?.toString() ?? 
-                          transaction['tanggal_transaksi']?.toString() ??
-                          transaction['created_at']?.toString();
-        
-        if (dateString != null) {
-          try {
-            if (dateString.contains('T')) {
-              dateTime = DateTime.parse(dateString).toLocal();
-            } else if (dateString.contains('-')) {
-              dateTime = DateFormat('yyyy-MM-dd').parse(dateString).toLocal();
-            } else if (dateString.contains('/')) {
-              dateTime = DateFormat('dd/MM/yyyy').parse(dateString).toLocal();
-            }
-          } catch (e) {
-            debugPrint('Error parsing date "$dateString": $e');
-          }
-        }
-        dateTime ??= DateTime.now();
-        
-        final date = DateFormat('EEEE, d MMMM y', 'id_ID').format(DateTime(
-          dateTime.year,
-          dateTime.month,
-          dateTime.day,
-        ));
-        
-        if (!groupedTransactions.containsKey(date)) {
-          groupedTransactions[date] = [];
-        }
-        
-        final amount = (transaction['jumlah'] is num) 
-            ? (transaction['jumlah'] as num).toDouble() 
-            : 0.0;
-            
-        final jenisTransaksi = transaction['jenis_transaksi']?.toString().toLowerCase() ?? '';
-        final isSetor = jenisTransaksi == 'setor';
-        
-        groupedTransactions[date]!.add({
-          'id': transaction['id']?.toString() ?? '',
-          'title': transaction['keterangan']?.toString() ?? 'Transaksi',
-          'amount': isSetor ? amount.abs() : -amount.abs(),
-          'date': dateTime,
-          'jenis_tabungan': transaction['jenis_tabungan']?.toString(),
-          'saldo_sesudah': (transaction['saldo_sesudah'] as num?)?.toDouble() ?? 0.0,
-          'is_setor': isSetor,
-        });
-      } catch (e) {
-        debugPrint('Error processing transaction: $e');
-        continue;
-      }
-    }
-    return groupedTransactions;
   }
 
   Widget _buildTransactionCard(
