@@ -7,14 +7,35 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+use App\Models\Siswa;
+use App\Models\Akun;
+
 class AkunController extends Controller
 {
     public function profile()
     {
         $user = Auth::user();
+
+        if ($user->role === 'siswa' && $user->id_siswa) {
+            $siswa = Siswa::with('kelasSiswa.kelas')->find($user->id_siswa);
+
+            if ($siswa) {
+                $kelasNama = 'Kelas tidak ditemukan';
+                if ($siswa->kelasSiswa->isNotEmpty() && $siswa->kelasSiswa->first()->kelas) {
+                    $kelasNama = $siswa->kelasSiswa->first()->kelas->nama_kelas;
+                }
+
+                return response()->json([
+                    'nama_siswa' => $siswa->nama_siswa,
+                    'kelas' => $kelasNama,
+                    'role' => 'siswa',
+                ]);
+            }
+        }
+
         return response()->json([
-            'nisn' => $user->nisn,
-            'nama_siswa' => $user->nama_siswa,
+            'username' => $user->username,
+            'role' => $user->role,
         ]);
     }
 

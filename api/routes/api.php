@@ -31,10 +31,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/akun', [AkunController::class, 'profile']);
     Route::post('/gantipw', [AkunController::class, 'changePassword']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/profile', [AuthController::class, 'profile']);
     
     // Tabungan
     Route::prefix('tabungan')->group(function () {
-        Route::post('/history', [TabunganController::class, 'history']);
+        Route::get('/history', [TabunganController::class, 'history']);
         Route::get('/income-expenses', [TabunganController::class, 'incomeExpenses']);
         Route::get('/saldo', [TabunganController::class, 'saldo']);
     });
