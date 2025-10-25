@@ -2,16 +2,20 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'auth_service.dart';
+import '../models/appconfig.dart';
 
 class TabunganService {
-  static const String _baseUrl = 'http://10.0.2.2:8000/api';
+  final AppConfig appConfig;
+  final AuthService authService;
+
+  TabunganService(this.appConfig, this.authService);
 
   // Get transaction history
-  static Future<List<Map<String, dynamic>>> getTransactionHistory({int limit = 10, int page = 1}) async {
+  Future<List<Map<String, dynamic>>> getTransactionHistory({int limit = 10, int page = 1}) async {
     try {
-      final headers = await AuthService.getAuthHeaders();
+      final headers = await authService.getAuthHeaders();
       final response = await http.get(
-        Uri.parse('$_baseUrl/tabungan/history?count=$limit&page=$page'),
+        Uri.parse('${appConfig.baseUrl}/tabungan/history?count=$limit&page=$page'),
         headers: headers,
       );
 
@@ -28,16 +32,16 @@ class TabunganService {
   }
 
   // Get recent transactions (last 3)
-  static Future<List<Map<String, dynamic>>> getRecentTransactions() async {
+  Future<List<Map<String, dynamic>>> getRecentTransactions() async {
     return getTransactionHistory(limit: 3);
   }
 
   // Get income and expenses summary
-  static Future<Map<String, dynamic>> getIncomeExpenses() async {
+  Future<Map<String, dynamic>> getIncomeExpenses() async {
     try {
-      final headers = await AuthService.getAuthHeaders();
+      final headers = await authService.getAuthHeaders();
       final response = await http.get(
-        Uri.parse('$_baseUrl/tabungan/income-expenses'),
+        Uri.parse('${appConfig.baseUrl}/tabungan/income-expenses'),
         headers: headers,
       );
 
@@ -53,11 +57,11 @@ class TabunganService {
   }
 
   // Get current balance
-  static Future<Map<String, dynamic>> getBalance() async {
+  Future<Map<String, dynamic>> getBalance() async {
     try {
-      final headers = await AuthService.getAuthHeaders();
+      final headers = await authService.getAuthHeaders();
       final response = await http.get(
-        Uri.parse('$_baseUrl/tabungan/saldo'),
+        Uri.parse('${appConfig.baseUrl}/tabungan/saldo'),
         headers: headers,
       );
 

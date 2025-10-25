@@ -27,7 +27,8 @@ class _AkunViewState extends State<AkunView> {
 
   Future<void> _loadUserData() async {
     try {
-      final userData = await AkunService.getAkunInfo();
+      final akunService = Provider.of<AkunService>(context, listen: false);
+      final userData = await akunService.getAkunInfo();
       setState(() {
         _userData = userData;
         _isLoading = false;
@@ -60,7 +61,8 @@ class _AkunViewState extends State<AkunView> {
     }
 
     try {
-      await AkunService.changePassword(
+      final akunService = Provider.of<AkunService>(context, listen: false);
+      await akunService.changePassword(
         _currentPasswordController.text,
         _newPasswordController.text,
       );

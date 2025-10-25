@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'models/appconfig.dart';
-import 'providers/appconfigprovider.dart';
 import 'providers/provider_registrar.dart';
 import 'views/home_view.dart';
 import 'views/login_view.dart';
@@ -14,19 +13,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null);
   
-  // Use the pre-configured dummyAppConfig
-  runApp(MyApp(appConfig: dummyAppConfig));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final AppConfig appConfig;
-  
-  const MyApp({super.key, required this.appConfig});
+  const MyApp({super.key});
   
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: getProviders(appConfig),
+      providers: registerProviders(),
       child: Builder(
         builder: (context) {
           final config = Provider.of<AppConfig>(context);

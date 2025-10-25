@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../services/tabungan_service.dart';
 import 'base_provider.dart';
 import '../services/error_service.dart';
@@ -7,6 +6,9 @@ import '../services/connectivity_service.dart';
 import '../services/profile_service.dart';
 
 class TabunganProvider extends BaseProvider {
+  final TabunganService tabunganService;
+  final ProfileService profileService;
+
   Map<String, dynamic>? _balance;
   List<Map<String, dynamic>> _recentTransactions = [];
   Map<String, dynamic>? _userProfile;
@@ -23,14 +25,16 @@ class TabunganProvider extends BaseProvider {
   final CacheService _cacheService = CacheService();
   final ConnectivityService _connectivityService = ConnectivityService();
 
+  TabunganProvider(this.tabunganService, this.profileService);
+
   Future<void> fetchData() async {
     setState(ViewState.loading);
     try {
       if (await _connectivityService.isConnected()) {
-        _balance = await TabunganService.getBalance();
-        _recentTransactions = await TabunganService.getRecentTransactions();
-        _userProfile = await ProfileService.getProfile();
-        final incomeExpensesData = await TabunganService.getIncomeExpenses();
+        _balance = await tabunganService.getBalance();
+        _recentTransactions = await tabunganService.getRecentTransactions();
+        _userProfile = await profileService.getProfile();
+        final incomeExpensesData = await tabunganService.getIncomeExpenses();
         _income = (incomeExpensesData['total_income'] ?? 0).toDouble();
         _expenses = (incomeExpensesData['total_expenses'] ?? 0).toDouble();
 

@@ -5,6 +5,8 @@ import 'base_provider.dart';
 import '../services/error_service.dart';
 
 class RiwayatProvider extends BaseProvider {
+  final TabunganService tabunganService;
+
   List<Map<String, dynamic>> _transactions = [];
   int _currentPage = 1;
   bool _hasMore = true;
@@ -72,12 +74,14 @@ class RiwayatProvider extends BaseProvider {
 
   final ErrorService _errorService = ErrorService();
 
+  RiwayatProvider(this.tabunganService);
+
   Future<void> fetchMoreTransactions() async {
     if (state == ViewState.loading || !_hasMore) return;
 
     setState(ViewState.loading);
     try {
-      final newTransactions = await TabunganService.getTransactionHistory(page: _currentPage);
+      final newTransactions = await tabunganService.getTransactionHistory(page: _currentPage);
       if (newTransactions.isEmpty) {
         _hasMore = false;
       } else {

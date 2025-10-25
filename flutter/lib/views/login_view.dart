@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../providers/appconfigprovider.dart';
+import 'package:provider/provider.dart';
+import '../models/appconfig.dart';
 import '../services/auth_service.dart';
 import '../services/error_service.dart';
 
@@ -25,7 +26,7 @@ class _LoginViewState extends State<LoginView> {
 
   // Get the first enabled feature route
   String _getFirstEnabledRoute() {
-    final appConfig = dummyAppConfig;
+    final appConfig = Provider.of<AppConfig>(context, listen: false);
     
     // Define the order of checking routes
     final routesInOrder = [
@@ -61,14 +62,15 @@ class _LoginViewState extends State<LoginView> {
       if (!mounted) return;
       
       try {
-        await AuthService.login(nisn, password);
+        final authService = Provider.of<AuthService>(context, listen: false);
+        await authService.login(nisn, password);
         if (!mounted) return;
         final firstEnabledRoute = _getFirstEnabledRoute();
         Navigator.of(context).pushReplacementNamed(firstEnabledRoute);
       } catch (e) {
         if (!mounted) return;
         final friendlyMessage = await _errorService.getFriendlyErrorMessage(e);
-        final colors = dummyAppConfig.colorPalette;
+        final colors = Provider.of<AppConfig>(context, listen: false).colorPalette;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(friendlyMessage, style: const TextStyle(color: Colors.white)),
@@ -92,7 +94,7 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    final colorPalette = dummyAppConfig.colorPalette;
+    final colorPalette = Provider.of<AppConfig>(context).colorPalette;
     
     return Scaffold(
       backgroundColor: colorPalette['background'],

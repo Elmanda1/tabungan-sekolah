@@ -1,34 +1,37 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'auth_service.dart';
+import '../models/appconfig.dart';
 
 class ProfileService {
-  static const String _baseUrl = 'http://10.0.2.2:8000/api';
+  final AppConfig appConfig;
+  final AuthService authService;
+
+  ProfileService(this.appConfig, this.authService);
+
   // Get user profile (read-only)
-  static Future<Map<String, dynamic>> getProfile() async {
+  Future<Map<String, dynamic>> getProfile() async {
     try {
-      debugPrint('Getting profile from: $_baseUrl/profile');
+      debugPrint('Getting profile from: ${appConfig.baseUrl}/profile');
       
-      if (AuthService.token == null) {
+      final token = await authService.getToken();
+      if (token == null) {
         debugPrint('No auth token found in AuthService');
-        final tokenFromStorage = await const FlutterSecureStorage().read(key: 'auth_token');
-        debugPrint('Token from storage: ${tokenFromStorage != null ? 'found' : 'not found'}');
         throw Exception('No authentication token found');
       }
 
-      debugPrint('Using token: ${AuthService.token}');
+      debugPrint('Using token: $token');
       
-      final url = '$_baseUrl/profile';
+      final url = '${appConfig.baseUrl}/profile';
       debugPrint('Making GET request to: $url');
       
       final response = await http.get(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${AuthService.token}',
+          'Authorization': 'Bearer $token',
         },
       );
 

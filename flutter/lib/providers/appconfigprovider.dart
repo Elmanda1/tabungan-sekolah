@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/appconfig.dart';
 
 final dummyAppConfig = AppConfig(
+  baseUrl: 'http://10.0.2.2:8000/flutterapi',
   menuTexts: {
     'beranda': 'Beranda',
     'riwayat': 'Riwayat',

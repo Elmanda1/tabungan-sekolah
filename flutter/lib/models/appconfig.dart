@@ -6,9 +6,11 @@ class AppConfig extends ChangeNotifier {
   final Map<String, IconData> menuActiveIcons;
   final Map<String, Color> colorPalette;
   final Map<String, bool> featureFlags;
+  final String baseUrl;
 
   // Default constructor with required parameters
   AppConfig({
+    required this.baseUrl,
     required Map<String, String> menuTexts,
     required Map<String, IconData> menuIcons,
     required Map<String, IconData> menuActiveIcons,
@@ -35,6 +37,7 @@ class AppConfig extends ChangeNotifier {
   // Factory constructor with default values
   factory AppConfig.defaultConfig() {
     return AppConfig(
+      baseUrl: 'http://10.0.2.2:8000/flutterapi', // Default API base URL
       menuTexts: {
         'beranda': 'Beranda',
         'riwayat': 'Riwayat',

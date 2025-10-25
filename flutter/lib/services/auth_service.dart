@@ -2,20 +2,23 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/foundation.dart';
+import '../models/appconfig.dart';
 
 class AuthService {
-  static const String _baseUrl = 'http://10.0.2.2:8000/api';
-  static const _storage = FlutterSecureStorage();
-  static String? _token;
+  final AppConfig appConfig;
+  final _storage = const FlutterSecureStorage();
+  String? _token;
+
+  AuthService(this.appConfig);
 
   // Getter for the authentication token
-  static String? get token => _token;
+  String? get token => _token;
 
   // Login with NISN and password
-  static Future<void> login(String username, String password, {String? deviceName}) async {
+  Future<void> login(String username, String password, {String? deviceName}) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/auth/login'),
+        Uri.parse('${appConfig.baseUrl}/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': username,
@@ -40,12 +43,12 @@ class AuthService {
   }
 
   // Logout
-  static Future<void> logout() async {
+  Future<void> logout() async {
     try {
       final token = await _storage.read(key: 'auth_token');
       if (token != null) {
         await http.post(
-          Uri.parse('$_baseUrl/auth/logout'),
+          Uri.parse('${appConfig.baseUrl}/auth/logout'),
           headers: _authHeader(token),
         );
       }
@@ -58,26 +61,26 @@ class AuthService {
   }
 
   // Get auth headers
-  static Map<String, String> _authHeader(String token) => {
+  Map<String, String> _authHeader(String token) => {
     'Authorization': 'Bearer $token',
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
 
   // Get auth token
-  static Future<String?> getToken() async {
+  Future<String?> getToken() async {
     _token ??= await _storage.read(key: 'auth_token');
     return _token;
   }
 
   // Check if user is logged in
-  static Future<bool> isLoggedIn() async {
+  Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null && token.isNotEmpty;
   }
 
   // Get auth headers for API calls
-  static Future<Map<String, String>> getAuthHeaders() async {
+  Future<Map<String, String>> getAuthHeaders() async {
     final token = await getToken();
     return _authHeader(token ?? '');
   }

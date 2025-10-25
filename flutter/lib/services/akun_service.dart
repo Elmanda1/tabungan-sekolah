@@ -2,16 +2,20 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'auth_service.dart';
+import '../models/appconfig.dart';
 
 class AkunService {
-  static const String _baseUrl = 'http://10.0.2.2:8000/api';
+  final AppConfig appConfig;
+  final AuthService authService;
+
+  AkunService(this.appConfig, this.authService);
 
   // Get user account information
-  static Future<Map<String, dynamic>> getAkunInfo() async {
+  Future<Map<String, dynamic>> getAkunInfo() async {
     try {
-      final headers = await AuthService.getAuthHeaders();
+      final headers = await authService.getAuthHeaders();
       final response = await http.get(
-        Uri.parse('$_baseUrl/akun'),
+        Uri.parse('${appConfig.baseUrl}/akun'),
         headers: headers,
       );
 
@@ -27,11 +31,11 @@ class AkunService {
   }
 
   // Change user password
-  static Future<void> changePassword(String oldPassword, String newPassword) async {
+  Future<void> changePassword(String oldPassword, String newPassword) async {
     try {
-      final headers = await AuthService.getAuthHeaders();
+      final headers = await authService.getAuthHeaders();
       final response = await http.post(
-        Uri.parse('$_baseUrl/gantipw'),
+        Uri.parse('${appConfig.baseUrl}/gantipw'),
         headers: headers,
         body: jsonEncode({
           'current_password': oldPassword,

@@ -1,8 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/appconfig.dart';
 import '../services/profile_service.dart';
 import '../services/error_service.dart';
@@ -131,10 +129,8 @@ class _ProfileCardState extends State<ProfileCard> {
 
     try {
       log('Fetching profile...');
-      final token = await const FlutterSecureStorage().read(key: 'auth_token');
-      log('Auth token: ${token != null ? 'found' : 'not found'}');
-      
-      final result = await ProfileService.getProfile();
+      final profileService = Provider.of<ProfileService>(context, listen: false);
+      final result = await profileService.getProfile();
       
       log('Profile fetch result: $result');
       
