@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/appconfig.dart';
 import '../maintemplates.dart';
 import '../services/akun_service.dart';
+import '../services/error_service.dart';
 
 class AkunView extends StatefulWidget {
   const AkunView({super.key});
@@ -18,6 +19,7 @@ class _AkunViewState extends State<AkunView> {
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmNewPasswordController = TextEditingController();
+  final ErrorService _errorService = ErrorService();
 
   @override
   void initState() {
@@ -42,17 +44,28 @@ class _AkunViewState extends State<AkunView> {
   }
 
   Future<void> _changePassword() async {
+    final colors = Provider.of<AppConfig>(context, listen: false).colorPalette;
     if (_newPasswordController.text != _confirmNewPasswordController.text) {
       // Show error dialog
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Error'),
-          content: const Text('New passwords do not match.'),
+          backgroundColor: colors['card'],
+          title: Text(
+            'Error',
+            style: TextStyle(color: colors['text']),
+          ),
+          content: Text(
+            'Konfirmasi Password Tidak Sama.',
+            style: TextStyle(color: colors['textSecondary']),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
+              child: Text(
+                'OK',
+                style: TextStyle(color: colors['primary']),
+              ),
             ),
           ],
         ),
@@ -70,27 +83,48 @@ class _AkunViewState extends State<AkunView> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Success'),
-          content: const Text('Password changed successfully.'),
+          backgroundColor: colors['card'],
+          title: Text(
+            'Success',
+            style: TextStyle(color: colors['text']),
+          ),
+          content: Text(
+            'Password changed successfully.',
+            style: TextStyle(color: colors['textSecondary']),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
+              child: Text(
+                'OK',
+                style: TextStyle(color: colors['primary']),
+              ),
             ),
           ],
         ),
       );
     } catch (e) {
+      final friendlyMessage = await _errorService.getFriendlyErrorMessage(e);
       // Show error dialog
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Error'),
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: colors['card'],
+          title: Text(
+            'Error',
+            style: TextStyle(color: colors['text']),
+          ),
+          content: Text(
+            friendlyMessage,
+            style: TextStyle(color: colors['textSecondary']),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
+              child: Text(
+                'OK',
+                style: TextStyle(color: colors['primary']),
+              ),
             ),
           ],
         ),

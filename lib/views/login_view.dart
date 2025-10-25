@@ -122,7 +122,7 @@ class _LoginViewState extends State<LoginView> {
                           : () {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Sign up functionality coming soon!', style: TextStyle(color: colorPalette['text'])),
+                                  content: Text('Fitur daftar akan segera hadir!', style: TextStyle(color: colorPalette['text'])),
                                 ),
                               );
                             },
@@ -168,7 +168,7 @@ class _LoginViewState extends State<LoginView> {
                             return 'Masukkan NISN';
                           }
                           if (value.length != 10) {
-                            return 'NISN must be 10 digits';
+                            return 'NISN harus 10 digit';
                           }
                           return null;
                         },
@@ -230,12 +230,12 @@ class _LoginViewState extends State<LoginView> {
                               : () {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Password reset functionality coming soon!', style: TextStyle(color: colorPalette['text'])),
+                                      content: Text('Fitur atur ulang kata sandi akan segera hadir!', style: TextStyle(color: colorPalette['text'])),
                                     ),
                                   );
                                 },
                           child: Text(
-                            'Forgot Password?',
+                            'Lupa Kata Sandi?',
                             style: TextStyle(
                               decoration: TextDecoration.underline,
                               decorationColor: colorPalette['text'],

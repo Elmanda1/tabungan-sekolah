@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
@@ -35,7 +34,7 @@ class AuthService {
           return;
         }
       }
-      throw Exception(response.data['message'] ?? 'Login failed. Please check your credentials.');
+      throw Exception(response.data['message'] ?? 'Gagal masuk. Silakan periksa kembali NISN dan kata sandi Anda.');
     } catch (e) {
       if (e is DioException) {
         debugPrint('************************');

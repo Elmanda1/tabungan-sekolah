@@ -48,8 +48,9 @@ class AkunService {
         },
       );
 
-      if (response.data['success'] != true) {
-        throw Exception(response.data['message'] ?? 'Failed to change password');
+      if (response.data['success'] != true && response.data['message'] != 'password berhasil diubah') {
+        debugPrint('API Response (Error but message is success): ${response.data}');
+        throw Exception(response.data['message'] ?? 'Gagal mengubah kata sandi.');
       }
     } catch (e) {
       debugPrint('Error changing password: $e');

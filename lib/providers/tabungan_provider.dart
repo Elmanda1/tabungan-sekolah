@@ -60,7 +60,7 @@ class TabunganProvider extends BaseProvider {
           _expenses = cachedExpenses;
           setState(ViewState.idle);
         } else {
-          setError('No internet connection and no cached data available.');
+          setError('Tidak ada koneksi internet dan tidak ada data cache yang tersedia.');
         }
       }
     } catch (e) {
