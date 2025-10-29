@@ -7,13 +7,12 @@ import '../services/profile_service.dart';
 import '../services/tabungan_service.dart';
 import '../services/api_service.dart'; // Import ApiService
 import 'tabungan_provider.dart';
-import 'riwayat_provider.dart';
-import 'appconfigprovider.dart';
+import 'riwayat_provider.dart';                 
 
 List<SingleChildWidget> registerProviders() {
   return [
     ChangeNotifierProvider<AppConfig>(
-      create: (_) => dummyAppConfig,
+      create: (_) => AppConfig.defaultConfig(),
     ),
     Provider<ApiService>( // Provide ApiService
       create: (context) => ApiService(context.read<AppConfig>()),
