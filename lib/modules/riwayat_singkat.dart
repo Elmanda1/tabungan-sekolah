@@ -23,7 +23,7 @@ class RiwayatSingkat extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
         side: BorderSide(
-          color: colors['outline']!,
+          color: colors['border'] ?? Colors.grey,
           width: 1,
         ),
       ),

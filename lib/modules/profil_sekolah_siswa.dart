@@ -54,7 +54,7 @@ Widget buildInfoCard({
 }
 
 class StudentInfoRow extends StatelessWidget {
-  final Map<String, dynamic> colors;
+  final Map<String, Color?> colors;
   final Map<String, dynamic>? profileData;
 
   const StudentInfoRow({
@@ -91,7 +91,7 @@ class StudentInfoRow extends StatelessWidget {
 }
 
 class ProfileCard extends StatefulWidget {
-  final Map<String, dynamic> colors;
+  final Map<String, Color?> colors;
   final String userName;
   final String studentName;
   final String studentClass;

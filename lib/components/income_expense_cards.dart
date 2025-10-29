@@ -24,7 +24,7 @@ class IncomeExpenseCards extends StatelessWidget {
           color: colors['card'],
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: colors['success']!, width: 0.7),
+            side: BorderSide(color: colors['success'] ?? Colors.green, width: 0.7),
           ),
           child: Padding(
             padding: const EdgeInsets.all(12.0),
@@ -33,10 +33,10 @@ class IncomeExpenseCards extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: colors['success']!.withOpacity(0.1),
+                    color: (colors['success'] ?? Colors.green).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(100),
                   ),
-                  child: Icon(Icons.trending_up, color: colors['success']),
+                  child: Icon(Icons.trending_up, color: colors['success'] ?? Colors.green),
                 ),
                 const SizedBox(width: 12),
                 Column(
@@ -69,7 +69,7 @@ class IncomeExpenseCards extends StatelessWidget {
           color: colors['card'],
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: colors['error']!, width: 0.7),
+            side: BorderSide(color: colors['error'] ?? Colors.red, width: 0.7),
           ),
           child: Padding(
             padding: const EdgeInsets.all(12.0),
@@ -78,10 +78,10 @@ class IncomeExpenseCards extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: colors['error']!.withOpacity(0.1),
+                    color: (colors['error'] ?? Colors.red).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(100),
                   ),
-                  child: Icon(Icons.trending_down, color: colors['error']),
+                  child: Icon(Icons.trending_down, color: colors['error'] ?? Colors.red),
                 ),
                 const SizedBox(width: 12),
                 Column(

@@ -61,17 +61,29 @@ class AppConfig extends ChangeNotifier {
         'primary': const Color(0xFF01986c),
         'primaryLight': const Color(0xFF34D399),
         'primaryDark': const Color(0xFF047857),
-        'background': const Color(0xFFF9FAFB),
-        'surface': Colors.white,
-        'card': Colors.white,
-        'text': const Color(0xFF111827),
-        'textSecondary': const Color(0xFF6B7280),
-        'textTertiary': const Color(0xFF9CA3AF),
+        'background': const Color.fromARGB(255, 255, 255, 255),
+        'surface': const Color.fromARGB(255, 226, 226, 226),
+        'card': const Color.fromARGB(255, 219, 219, 219),
+        'text': const Color.fromARGB(255, 0, 0, 0),
+        'textSecondary': const Color.fromARGB(255, 51, 51, 51),
+        'textTertiary': const Color.fromARGB(255, 180, 180, 180),
+        'textButton' : const Color.fromARGB(255, 255, 255, 255),
         'success': const Color(0xFF10B981),
         'error': const Color(0xFFEF4444),
         'divider': const Color(0xFFE5E7EB),
         'highlight': const Color(0x1A01986c),
-        'border' : const Color.fromARGB(26, 202, 202, 202)
+        'border' : const Color.fromARGB(26, 0, 0, 0)
+      },
+      featureFlags: <String, bool>{
+        // Navigation items
+        'feature.beranda.enabled': true,
+        'feature.riwayat.enabled': true,
+        'feature.akun.enabled': true,
+        
+        // Home modules
+        'feature.home.dashboard_tabungan.enabled': false,
+        'feature.home.profile_card.enabled': true,
+        'feature.home.riwayat_singkat.enabled': false,
       },
     );
   }

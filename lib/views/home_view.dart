@@ -80,9 +80,9 @@ class _HomeViewState extends State<HomeView> {
 
           if (tabunganProvider.state == ViewState.error) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _dialogService.showError(context, tabunganProvider.errorMessage!, tabunganProvider.error);
+              _dialogService.showError(context, tabunganProvider.errorMessage ?? 'An unknown error occurred.', tabunganProvider.error);
             });
-            return Center(child: Text(tabunganProvider.errorMessage!));
+            return Center(child: Text(tabunganProvider.errorMessage ?? 'An unknown error occurred.'));
           }
 
           return SingleChildScrollView(
@@ -120,6 +120,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   
                   // Recent Transactions Card
+                  if (appConfig.featureFlags['feature.home.riwayat_singkat.enabled'] ?? false)
                   RiwayatSingkat(
                     colors: colors,
                     onViewAll: () async {

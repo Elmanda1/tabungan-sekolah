@@ -58,9 +58,9 @@ class _RiwayatViewState extends State<RiwayatView> {
 
           if (riwayatProvider.state == ViewState.error) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _dialogService.showError(context, riwayatProvider.errorMessage!, riwayatProvider.error);
+              _dialogService.showError(context, riwayatProvider.errorMessage ?? 'An unknown error occurred.', riwayatProvider.error);
             });
-            return Center(child: Text(riwayatProvider.errorMessage!));
+            return Center(child: Text(riwayatProvider.errorMessage ?? 'An unknown error occurred.'));
           }
 
           if (riwayatProvider.transactions.isEmpty) {
@@ -137,7 +137,7 @@ class _RiwayatViewState extends State<RiwayatView> {
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(11),
-        side: BorderSide(color: colors['outline']!, width: 0.7),
+        side: BorderSide(color: colors['border'] ?? Colors.grey, width: 0.7),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

@@ -151,11 +151,11 @@ class _LoginViewState extends State<LoginView> {
                         style: TextStyle(color: colorPalette['text']),
                         decoration: InputDecoration(
                           labelText: 'NISN',
-                          labelStyle: TextStyle(color: colorPalette['text']?.withOpacity(0.7)),
-                          prefixIcon: Icon(Icons.credit_card, color: colorPalette['text']?.withOpacity(0.7)),
+                          labelStyle: TextStyle(color: colorPalette['text']?.withValues(alpha: 0.7)),
+                          prefixIcon: Icon(Icons.credit_card, color: colorPalette['text']?.withValues(alpha: 0.7)),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: colorPalette['border'] ?? Colors.white.withOpacity(0.3)),
+                            borderSide: BorderSide(color: colorPalette['border'] ?? Colors.white),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -203,7 +203,7 @@ class _LoginViewState extends State<LoginView> {
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: colorPalette['border'] ?? Colors.white.withOpacity(0.3)),
+                            borderSide: BorderSide(color: colorPalette['border'] ?? Colors.white),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -273,14 +273,14 @@ class _LoginViewState extends State<LoginView> {
                               : Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.login, size: 20, color: colorPalette['text']),
+                                    Icon(Icons.login, size: 20, color: colorPalette['textButton']),
                                     SizedBox(width: 8),
                                     Text(
                                       'LOGIN',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        color: colorPalette['text'],
+                                        color: colorPalette['textButton'],
                                       ),
                                     ),
                                   ],
