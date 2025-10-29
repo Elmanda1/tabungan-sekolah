@@ -26,7 +26,10 @@ class _RiwayatViewState extends State<RiwayatView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<RiwayatProvider>(context, listen: false).refresh();
+      final riwayatProvider = Provider.of<RiwayatProvider>(context, listen: false);
+      if (riwayatProvider.transactions.isEmpty) {
+        riwayatProvider.refresh();
+      }
     });
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
@@ -55,7 +58,7 @@ class _RiwayatViewState extends State<RiwayatView> {
 
           if (riwayatProvider.state == ViewState.error) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _dialogService.showErrorDialog(context, riwayatProvider.errorMessage!);
+              _dialogService.showError(context, riwayatProvider.errorMessage!, riwayatProvider.error);
             });
             return Center(child: Text(riwayatProvider.errorMessage!));
           }

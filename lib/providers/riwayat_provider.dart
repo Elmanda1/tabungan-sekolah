@@ -6,6 +6,7 @@ import '../services/error_service.dart';
 
 class RiwayatProvider extends BaseProvider {
   final TabunganService tabunganService;
+  final ErrorService _errorService = ErrorService();
 
   List<Map<String, dynamic>> _transactions = [];
   int _currentPage = 1;
@@ -72,14 +73,39 @@ class RiwayatProvider extends BaseProvider {
     return groupedTransactions;
   }
 
-  final ErrorService _errorService = ErrorService();
+  bool _isPaginating = false;
 
   RiwayatProvider(this.tabunganService);
 
   Future<void> fetchMoreTransactions() async {
-    if (state == ViewState.loading || !_hasMore) return;
+    if (_isPaginating || !_hasMore) return;
+
+    _isPaginating = true;
+
+    try {
+      final newTransactions = await tabunganService.getTransactionHistory(page: _currentPage);
+      if (newTransactions.isEmpty) {
+        _hasMore = false;
+      } else {
+        _transactions.addAll(newTransactions);
+        _currentPage++;
+      }
+    } catch (e) {
+      debugPrint('Error fetching more transactions: $e');
+    } finally {
+      _isPaginating = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> refresh() async {
+    if (_isPaginating) return;
 
     setState(ViewState.loading);
+    _transactions = [];
+    _currentPage = 1;
+    _hasMore = true;
+
     try {
       final newTransactions = await tabunganService.getTransactionHistory(page: _currentPage);
       if (newTransactions.isEmpty) {
@@ -90,14 +116,7 @@ class RiwayatProvider extends BaseProvider {
       }
       setState(ViewState.idle);
     } catch (e) {
-      setError(await _errorService.getFriendlyErrorMessage(e));
+      setError(await _errorService.getFriendlyErrorMessage(e), e);
     }
-  }
-
-  Future<void> refresh() async {
-    _transactions = [];
-    _currentPage = 1;
-    _hasMore = true;
-    await fetchMoreTransactions();
   }
 }

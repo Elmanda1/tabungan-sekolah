@@ -7,6 +7,22 @@ import 'connectivity_service.dart';
 class ErrorService {
   final ConnectivityService _connectivityService = ConnectivityService();
 
+  Future<bool> isNetworkError(dynamic error) async {
+    if (error is String && error == 'Tidak ada koneksi internet dan tidak ada data cache yang tersedia.') {
+      return true;
+    }
+    if (error is SocketException || error is HttpException || error is TimeoutException) {
+      return true;
+    }
+    if (error is DioException) {
+      return error.type == DioExceptionType.connectionTimeout ||
+             error.type == DioExceptionType.sendTimeout ||
+             error.type == DioExceptionType.receiveTimeout ||
+             error.type == DioExceptionType.connectionError;
+    }
+    return false;
+  }
+
   Future<String> getFriendlyErrorMessage(dynamic error) async {
     if (error is DioException) {
       if (error.response != null && error.response?.data != null) {

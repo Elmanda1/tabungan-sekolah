@@ -80,7 +80,7 @@ class _HomeViewState extends State<HomeView> {
 
           if (tabunganProvider.state == ViewState.error) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _dialogService.showErrorDialog(context, tabunganProvider.errorMessage!);
+              _dialogService.showError(context, tabunganProvider.errorMessage!, tabunganProvider.error);
             });
             return Center(child: Text(tabunganProvider.errorMessage!));
           }
